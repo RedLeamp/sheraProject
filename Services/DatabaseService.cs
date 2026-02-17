@@ -68,46 +68,9 @@ namespace OfficeManagerWPF.Services
                         Notes TEXT
                     )";
 
-                string createNotificationSettingsTable = @"
-                    CREATE TABLE IF NOT EXISTS NotificationSettings (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        EnableSmsNotifications INTEGER NOT NULL DEFAULT 1,
-                        EnableEmailNotifications INTEGER NOT NULL DEFAULT 1,
-                        UnpaidEarlyMonth INTEGER NOT NULL DEFAULT 1,
-                        UnpaidMidMonth INTEGER NOT NULL DEFAULT 1,
-                        UnpaidEndMonth INTEGER NOT NULL DEFAULT 1,
-                        RentWeekBefore INTEGER NOT NULL DEFAULT 1,
-                        RentThreeDaysBefore INTEGER NOT NULL DEFAULT 1,
-                        RentDueDate INTEGER NOT NULL DEFAULT 1,
-                        SmsApiKey TEXT,
-                        SmsApiSecret TEXT,
-                        SmsSenderNumber TEXT,
-                        EmailSmtpServer TEXT,
-                        EmailSmtpPort TEXT,
-                        EmailAddress TEXT,
-                        EmailPassword TEXT,
-                        EmailSenderName TEXT
-                    )";
-
-                string createNotificationLogsTable = @"
-                    CREATE TABLE IF NOT EXISTS NotificationLogs (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        SentDate TEXT NOT NULL,
-                        NotificationType TEXT NOT NULL,
-                        Category TEXT NOT NULL,
-                        CompanyId INTEGER NOT NULL,
-                        CompanyName TEXT NOT NULL,
-                        Recipient TEXT NOT NULL,
-                        Message TEXT NOT NULL,
-                        IsSuccess INTEGER NOT NULL,
-                        ErrorMessage TEXT
-                    )";
-
                 ExecuteNonQuery(createCompaniesTable, connection);
                 ExecuteNonQuery(createPaymentsTable, connection);
                 ExecuteNonQuery(createExpensesTable, connection);
-                ExecuteNonQuery(createNotificationSettingsTable, connection);
-                ExecuteNonQuery(createNotificationLogsTable, connection);
             }
         }
 
@@ -360,75 +323,6 @@ namespace OfficeManagerWPF.Services
                 command.ExecuteNonQuery();
             }
         }
-
-
-        public void SaveNotificationSettings(NotificationSettings settings)
-        {
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                connection.Open();
-                
-                // 기존 설정 확인
-                string checkQuery = "SELECT COUNT(*) FROM NotificationSettings";
-                int count = 0;
-                using (var checkCommand = new SQLiteCommand(checkQuery, connection))
-                {
-                    count = Convert.ToInt32(checkCommand.ExecuteScalar());
-                }
-
-                string query;
-                if (count == 0)
-                {
-                    // Insert
-                    query = @"INSERT INTO NotificationSettings (
-                        EnableSmsNotifications, EnableEmailNotifications,
-                        UnpaidEarlyMonth, UnpaidMidMonth, UnpaidEndMonth,
-                        RentWeekBefore, RentThreeDaysBefore, RentDueDate,
-                        SmsApiKey, SmsApiSecret, SmsSenderNumber,
-                        EmailSmtpServer, EmailSmtpPort, EmailAddress, EmailPassword, EmailSenderName
-                    ) VALUES (
-                        @EnableSms, @EnableEmail,
-                        @UnpaidEarly, @UnpaidMid, @UnpaidEnd,
-                        @RentWeek, @RentThree, @RentDue,
-                        @SmsKey, @SmsSecret, @SmsSender,
-                        @EmailServer, @EmailPort, @EmailAddr, @EmailPass, @EmailName
-                    )";
-                }
-                else
-                {
-                    // Update
-                    query = @"UPDATE NotificationSettings SET
-                        EnableSmsNotifications=@EnableSms, EnableEmailNotifications=@EnableEmail,
-                        UnpaidEarlyMonth=@UnpaidEarly, UnpaidMidMonth=@UnpaidMid, UnpaidEndMonth=@UnpaidEnd,
-                        RentWeekBefore=@RentWeek, RentThreeDaysBefore=@RentThree, RentDueDate=@RentDue,
-                        SmsApiKey=@SmsKey, SmsApiSecret=@SmsSecret, SmsSenderNumber=@SmsSender,
-                        EmailSmtpServer=@EmailServer, EmailSmtpPort=@EmailPort, 
-                        EmailAddress=@EmailAddr, EmailPassword=@EmailPass, EmailSenderName=@EmailName";
-                }
-
-                using (var command = new SQLiteCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@EnableSms", settings.EnableSmsNotifications ? 1 : 0);
-                    command.Parameters.AddWithValue("@EnableEmail", settings.EnableEmailNotifications ? 1 : 0);
-                    command.Parameters.AddWithValue("@UnpaidEarly", settings.UnpaidEarlyMonth ? 1 : 0);
-                    command.Parameters.AddWithValue("@UnpaidMid", settings.UnpaidMidMonth ? 1 : 0);
-                    command.Parameters.AddWithValue("@UnpaidEnd", settings.UnpaidEndMonth ? 1 : 0);
-                    command.Parameters.AddWithValue("@RentWeek", settings.RentWeekBefore ? 1 : 0);
-                    command.Parameters.AddWithValue("@RentThree", settings.RentThreeDaysBefore ? 1 : 0);
-                    command.Parameters.AddWithValue("@RentDue", settings.RentDueDate ? 1 : 0);
-                    command.Parameters.AddWithValue("@SmsKey", (object)settings.SmsApiKey ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@SmsSecret", (object)settings.SmsApiSecret ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@SmsSender", (object)settings.SmsSenderNumber ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@EmailServer", (object)settings.EmailSmtpServer ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@EmailPort", (object)settings.EmailSmtpPort ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@EmailAddr", (object)settings.EmailAddress ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@EmailPass", (object)settings.EmailPassword ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@EmailName", (object)settings.EmailSenderName ?? DBNull.Value);
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
 
     }
 }
