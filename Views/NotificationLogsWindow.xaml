@@ -1,0 +1,60 @@
+<Window x:Class="OfficeManagerWPF.Views.NotificationLogsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="알림 발송 내역" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 제목 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="📋 알림 발송 내역" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="SMS 및 이메일 발송 기록을 확인할 수 있습니다." 
+                       Foreground="Gray" FontSize="13" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- 알림 내역 테이블 -->
+        <DataGrid Grid.Row="1" 
+                  x:Name="dgNotificationLogs"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  BorderBrush="{StaticResource VSBorderBrush}"
+                  BorderThickness="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="발송일시" Binding="{Binding SentDate, StringFormat=yyyy-MM-dd HH:mm}" Width="150"/>
+                <DataGridTextColumn Header="업체명" Binding="{Binding CompanyName}" Width="*"/>
+                <DataGridTextColumn Header="유형" Binding="{Binding Type}" Width="100"/>
+                <DataGridTextColumn Header="발송방법" Binding="{Binding Method}" Width="100"/>
+                <DataGridTextColumn Header="메시지" Binding="{Binding Message}" Width="*"/>
+                <DataGridTextColumn Header="상태" Binding="{Binding Status}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 하단 안내 -->
+        <Border Grid.Row="2" 
+                Background="{StaticResource VSBackgroundBrush}" 
+                BorderBrush="{StaticResource VSBorderBrush}" 
+                BorderThickness="1" 
+                CornerRadius="4" 
+                Padding="15"
+                Margin="0,15,0,0">
+            <StackPanel>
+                <TextBlock Text="💡 안내" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBlock TextWrapping="Wrap" Foreground="Gray">
+                    • 알림 내역은 최근 90일까지 보관됩니다.<LineBreak/>
+                    • 실제 발송 내역은 SMS/이메일 API 제공업체에서도 확인 가능합니다.<LineBreak/>
+                    • 발송 실패 시 "알림 설정"에서 API 키를 확인해주세요.
+                </TextBlock>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

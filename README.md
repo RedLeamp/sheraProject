@@ -1,241 +1,318 @@
-# Office Manager - 공유오피스 관리 시스템 (WPF)
+# Office Manager - 공유오피스 관리 시스템 (WPF + Visual Studio 스타일)
 
-## 📋 프로젝트 개요
+**Visual Studio Dark Theme UI/UX + SMS/이메일 자동 알림 시스템**이 통합된 공유오피스 관리 프로그램입니다.
 
-공유오피스의 상주/비상주 업체를 관리하고, 입금/지출 내역을 추적하며, 미수금을 관리하는 Windows 데스크톱 애플리케이션입니다.
+---
 
-## ✨ 주요 기능
+## 🎨 주요 특징
 
-### 1. 대시보드
-- 월별 입금/지출/순이익 통계
-- 활성 업체 수 및 미수금 현황
-- 빠른 작업 메뉴
+### 1️⃣ Visual Studio 스타일 UI/UX
+- **어두운 테마**: Visual Studio Dark Theme (#1E1E1E, #252526)
+- **파란 액센트**: VS Blue (#007ACC)
+- **전문적인 사이드바**: 메뉴 구조와 아이콘
+- **DataGrid 최적화**: 가독성 높은 테이블 디자인
 
-### 2. 업체 관리
-- 업체 추가/수정/삭제
-- 상주/비상주 구분 관리
-- 계약일자, 월이용료, 담당자 정보 관리
-- 검색 및 필터 기능
+### 2️⃣ SMS/이메일 자동 알림 시스템
+#### 📅 미수금 알림 (월 3회)
+- **월초 (1일)**: 미수금 업체에 납입 안내
+- **월중순 (15일)**: 미수금 업체에 재안내
+- **월말 (말일)**: 최종 납입 독촉
 
-### 3. 입금/지출 관리
-- 월별 입금 내역 관리
-- 월별 지출 내역 관리
-- Excel 파일 가져오기/내보내기
-- 입금액/지출액 통계
+#### 💰 월세 납입 알림 (월 3회)
+- **7일 전**: 월세 납입 사전 안내
+- **3일 전**: 월세 납입 리마인드
+- **당일**: 월세 납입 당일 안내
 
-### 4. 미수금 관리
-- 월별 미수금 현황 자동 계산
-- 미납 업체 목록 표시
-- 미수금액 및 건수 통계
+### 3️⃣ 핵심 기능
+- ✅ 업체 관리 (상주/바상주, 계약일자, 월세)
+- ✅ 입금/지출 관리 (월별 집계)
+- ✅ 미수금 자동 계산 및 추적
+- ✅ Excel 입출력 (업체, 입금, 지출 데이터)
+- ✅ 대시보드 통계 (총 입금액, 지출액, 순이익)
+- ✅ 자동 알림 스케줄러 (백그라운드 실행)
 
-### 5. Excel 연동
-- 업체/입금/지출 데이터 Excel 내보내기
-- Excel 파일에서 데이터 가져오기
-- 3개 시트 자동 생성 (업체목록, 입금내역, 지출내역)
+---
 
-## 🛠️ 기술 스택
+## 📦 기술 스택
 
-- **.NET 6.0** - 최신 .NET 플랫폼
-- **WPF (Windows Presentation Foundation)** - Windows 데스크톱 UI
-- **MVVM 패턴** - Model-View-ViewModel 아키텍처
-- **SQLite** - 로컬 데이터베이스 (System.Data.SQLite)
-- **ClosedXML** - Excel 파일 처리 라이브러리
+- **프레임워크**: .NET 6.0 WPF
+- **패턴**: MVVM (Model-View-ViewModel)
+- **데이터베이스**: SQLite (System.Data.SQLite 1.0.118)
+- **Excel**: ClosedXML 0.102.2
+- **이메일**: System.Net.Mail (SMTP)
+- **SMS**: HTTP API 연동 (알리고, 카카오 알림톡 등)
 
-## 📦 필수 요구사항
+---
 
-### 개발 환경
+## 🚀 빌드 및 실행
+
+### 요구사항
 - **Windows 10 이상**
-- **Visual Studio 2022** (Community Edition 이상)
-  - .NET Desktop Development 워크로드 설치 필요
-- **.NET 6.0 SDK** (Visual Studio 설치 시 포함)
+- **Visual Studio 2022**
+- **.NET 6.0 SDK** ([다운로드](https://dotnet.microsoft.com/download/dotnet/6.0))
 
-### 실행 환경
-- **Windows 10 이상**
-- **.NET 6.0 Runtime** (없으면 자동 설치 안내)
+### 빌드 방법
 
-## 🚀 빌드 및 실행 방법
-
-### 1. Visual Studio에서 빌드
-
-1. **Visual Studio 2022 실행**
-2. **프로젝트 열기**:
-   - `파일` → `프로젝트/솔루션 열기`
-   - `OfficeManagerWPF.csproj` 선택
-3. **NuGet 패키지 복원**:
-   - Visual Studio가 자동으로 패키지 복원
-   - 수동 복원: `도구` → `NuGet 패키지 관리자` → `솔루션용 NuGet 패키지 관리`
-4. **빌드**:
-   - `F6` 키 또는 `빌드` → `솔루션 빌드`
-5. **실행**:
-   - `F5` 키 또는 `디버그` → `디버깅 시작`
-
-### 2. 명령줄에서 빌드
-
+#### 1️⃣ Visual Studio에서 빌드
 ```bash
-# 프로젝트 디렉토리로 이동
-cd OfficeManagerWPF
+# 프로젝트 열기
+OfficeManagerWPF.csproj를 Visual Studio 2022에서 열기
 
 # NuGet 패키지 복원
+도구 → NuGet 패키지 관리자 → 솔루션용 NuGet 패키지 관리 → 복원
+
+# 빌드 (F6)
+빌드 → 솔루션 빌드
+
+# 실행 (F5)
+디버그 → 디버깅 시작
+```
+
+#### 2️⃣ 명령줄에서 빌드
+```bash
+# NuGet 복원
 dotnet restore
 
 # 빌드
 dotnet build --configuration Release
 
 # 실행
-dotnet run --configuration Release
+dotnet run
 ```
 
-### 3. 독립 실행 파일 생성 (배포용)
-
+#### 3️⃣ 단일 실행 파일 배포
 ```bash
-# 자체 포함 실행 파일 생성 (런타임 포함)
+# Self-contained 단일 파일로 배포
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 
-# 생성된 파일 위치: bin/Release/net6.0-windows/win-x64/publish/OfficeManager.exe
+# 출력 경로: bin/Release/net6.0-windows/win-x64/publish/OfficeManager.exe
 ```
-
-## 📂 프로젝트 구조
-
-```
-OfficeManagerWPF/
-├── Models/                      # 데이터 모델
-│   ├── Company.cs               # 업체 모델
-│   ├── Payment.cs               # 입금 모델
-│   └── Expense.cs               # 지출 모델
-├── Services/                    # 비즈니스 로직
-│   ├── DatabaseService.cs       # SQLite 데이터베이스 관리
-│   └── ExcelService.cs          # Excel 입출력 처리
-├── ViewModels/                  # MVVM ViewModel
-│   ├── ViewModelBase.cs         # ViewModel 기본 클래스
-│   ├── RelayCommand.cs          # Command 구현
-│   └── MainViewModel.cs         # 메인 화면 ViewModel
-├── Views/                       # XAML UI
-│   ├── MainWindow.xaml          # 메인 대시보드
-│   ├── CompanyManagementWindow.xaml    # 업체 관리
-│   ├── PaymentExpenseWindow.xaml       # 입금/지출 관리
-│   └── UnpaidManagementWindow.xaml     # 미수금 관리
-├── Resources/                   # 리소스 파일
-├── App.xaml                     # 애플리케이션 진입점
-└── OfficeManagerWPF.csproj      # 프로젝트 파일
-```
-
-## 💾 데이터베이스
-
-### 저장 위치
-```
-%LocalAppData%\OfficeManager\OfficeManager.db
-```
-일반적인 경로: `C:\Users\[사용자명]\AppData\Local\OfficeManager\OfficeManager.db`
-
-### 테이블 구조
-
-**Companies** (업체)
-- Id (INTEGER PRIMARY KEY)
-- Name (TEXT)
-- Type (TEXT) - "상주" 또는 "비상주"
-- ContractDate (TEXT)
-- MonthlyFee (REAL)
-- ContactPerson (TEXT)
-- PhoneNumber (TEXT)
-- Email (TEXT)
-- Notes (TEXT)
-- IsActive (INTEGER)
-
-**Payments** (입금)
-- Id (INTEGER PRIMARY KEY)
-- CompanyId (INTEGER)
-- CompanyName (TEXT)
-- PaymentDate (TEXT)
-- Amount (REAL)
-- Period (TEXT) - "yyyy-MM" 형식
-- PaymentMethod (TEXT)
-- Notes (TEXT)
-- IsConfirmed (INTEGER)
-
-**Expenses** (지출)
-- Id (INTEGER PRIMARY KEY)
-- ExpenseDate (TEXT)
-- Category (TEXT)
-- Amount (REAL)
-- Description (TEXT)
-- Period (TEXT) - "yyyy-MM" 형식
-- Notes (TEXT)
-
-## 📋 Excel 파일 형식
-
-### 내보내기 파일 구조
-- **업체목록 시트**: 모든 등록 업체 정보
-- **입금내역 시트**: 최근 12개월 입금 내역
-- **지출내역 시트**: 최근 12개월 지출 내역
-
-### 가져오기 형식
-내보낸 Excel 파일과 동일한 형식으로 데이터를 가져올 수 있습니다.
-
-## 🎨 UI 디자인
-
-### 디자인 컨셉
-- **미니멀 프리미엄** 스타일
-- 깔끔한 흰색 배경 (#F5F5F5)
-- 카드 기반 레이아웃
-- 부드러운 모서리 (CornerRadius: 8-12)
-- 미세한 그림자 효과
-
-### 색상 팔레트
-- **배경**: #F5F5F5 (연한 회색)
-- **카드**: #FFFFFF (흰색)
-- **텍스트**: #333333 (진한 회색)
-- **보조 텍스트**: #999999 (회색)
-- **입금**: #4CAF50 (초록색)
-- **지출**: #F44336 (빨간색)
-- **미수금**: #FF9800 (주황색)
-- **강조**: #2196F3 (파란색)
-
-## 🔧 문제 해결
-
-### 빌드 오류
-
-**NuGet 패키지 복원 실패**
-```bash
-# Visual Studio에서
-도구 → NuGet 패키지 관리자 → 패키지 관리자 콘솔
-PM> Update-Package -reinstall
-
-# 명령줄에서
-dotnet restore --force
-```
-
-**SQLite DLL 오류**
-- `System.Data.SQLite.Core` 패키지가 자동으로 네이티브 DLL을 포함합니다
-- 수동 설치가 필요한 경우: NuGet에서 재설치
-
-**Excel 관련 오류**
-- `ClosedXML` 패키지가 자동으로 의존성을 처리합니다
-- `DocumentFormat.OpenXml` 패키지도 자동 설치됩니다
-
-### 실행 오류
-
-**데이터베이스 접근 오류**
-- SQLite DB 파일의 권한을 확인하세요
-- `%LocalAppData%\OfficeManager` 폴더 권한 확인
-
-**.NET 런타임 없음**
-- [.NET 6.0 Runtime 다운로드](https://dotnet.microsoft.com/download/dotnet/6.0)
-- Desktop Runtime 설치 필요
-
-## 📝 라이선스
-
-이 프로젝트는 개인 및 상업적 용도로 자유롭게 사용할 수 있습니다.
-
-## 🤝 기여
-
-버그 리포트나 기능 제안은 언제든지 환영합니다!
-
-## 📧 연락처
-
-프로젝트 관련 문의사항이 있으시면 연락 주세요.
 
 ---
 
-**개발 환경**: Visual Studio 2022, .NET 6.0, WPF  
-**테스트 환경**: Windows 10/11  
-**마지막 업데이트**: 2025-02-14
+## 📋 프로젝트 구조
+
+```
+OfficeManagerWPF/
+├─ Models/                          # 데이터 모델
+│  ├─ Company.cs                    # 업체 모델
+│  ├─ Payment.cs                    # 입금 모델
+│  └─ Expense.cs                    # 지출 모델
+│
+├─ Services/                        # 비즈니스 로직
+│  ├─ DatabaseService.cs            # SQLite 데이터베이스 서비스
+│  ├─ ExcelService.cs               # Excel 입출력 서비스
+│  ├─ SmsService.cs                 # SMS 발송 서비스
+│  ├─ EmailService.cs               # 이메일 발송 서비스
+│  └─ NotificationSchedulerService.cs  # 자동 알림 스케줄러
+│
+├─ ViewModels/                      # MVVM 뷰모델
+│  ├─ ViewModelBase.cs              # Base ViewModel
+│  ├─ RelayCommand.cs               # Command 구현
+│  └─ MainViewModel.cs              # 메인 ViewModel
+│
+├─ Views/                           # UI 화면
+│  ├─ MainWindow.xaml               # 메인 화면 (대시보드)
+│  ├─ CompanyManagementWindow.xaml  # 업체 관리
+│  ├─ PaymentExpenseWindow.xaml     # 입금/지출 관리
+│  ├─ UnpaidManagementWindow.xaml   # 미수금 관리
+│  ├─ NotificationSettingsWindow.xaml  # 알림 설정
+│  └─ NotificationLogsWindow.xaml   # 알림 내역
+│
+├─ Properties/                      # 앱 설정
+│  ├─ Settings.settings             # 사용자 설정
+│  └─ Settings.Designer.cs          # 설정 코드
+│
+├─ App.xaml                         # 앱 전역 리소스 (VS 테마)
+├─ App.xaml.cs                      # 앱 시작/종료 로직
+└─ OfficeManagerWPF.csproj          # 프로젝트 파일
+```
+
+---
+
+## 💾 데이터베이스 구조
+
+**위치**: `C:\Users\[사용자명]\AppData\Local\OfficeManager\OfficeManager.db`
+
+### Companies 테이블
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| Id | INTEGER PRIMARY KEY | 업체 ID |
+| Name | TEXT | 업체명 |
+| Type | TEXT | 상주/바상주 |
+| ContractDate | TEXT | 계약일자 |
+| MonthlyFee | REAL | 월세 |
+| ContactPerson | TEXT | 담당자 |
+| ContactPhone | TEXT | 전화번호 |
+| ContactEmail | TEXT | 이메일 |
+| Notes | TEXT | 비고 |
+| IsActive | INTEGER | 활성 여부 |
+
+### Payments 테이블
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| Id | INTEGER PRIMARY KEY | 입금 ID |
+| CompanyId | INTEGER | 업체 ID (FK) |
+| PaymentDate | TEXT | 입금일자 |
+| Amount | REAL | 입금액 |
+| Period | TEXT | 대상기간 (yyyy-MM) |
+| Notes | TEXT | 비고 |
+
+### Expenses 테이블
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| Id | INTEGER PRIMARY KEY | 지출 ID |
+| ExpenseDate | TEXT | 지출일자 |
+| Category | TEXT | 카테고리 |
+| Amount | REAL | 지출액 |
+| Description | TEXT | 설명 |
+| Period | TEXT | 대상기간 (yyyy-MM) |
+| Notes | TEXT | 비고 |
+
+---
+
+## 📧 SMS/이메일 설정
+
+### 1️⃣ Gmail 이메일 설정
+1. Google 계정 → **보안** → **2단계 인증** 활성화
+2. **앱 비밀번호** 생성 ([링크](https://myaccount.google.com/apppasswords))
+3. 알림 설정 화면에서 입력:
+   - SMTP 서버: `smtp.gmail.com`
+   - 포트: `587`
+   - 발신 이메일: `your-email@gmail.com`
+   - 비밀번호: `앱 비밀번호 16자리`
+
+### 2️⃣ SMS API 설정
+- **알리고 SMS**: https://smartsms.aligo.in
+- **카카오 알림톡**: https://business.kakao.com
+- **네이버 클라우드 SMS**: https://www.ncloud.com
+
+알림 설정 화면에서 API 키와 발신번호를 입력하세요.
+
+---
+
+## ⚙️ 자동 알림 스케줄링
+
+### 알림 발송 일정
+- **실행 시간**: 매일 오전 9시 (프로그램 실행 시 자동 시작)
+- **미수금 알림**: 월 1일, 15일, 말일
+- **월세 알림**: 계약일 기준 7일 전, 3일 전, 당일
+
+### 알림 비활성화 방법
+```csharp
+// Properties/Settings.settings에서 변경
+AutoNotificationEnabled = false
+```
+
+---
+
+## 🎨 UI/UX 색상 팔레트
+
+| 색상 | Hex Code | 용도 |
+|------|----------|------|
+| VS 배경 | #1E1E1E | 메인 배경 |
+| VS 사이드바 | #252526 | 사이드바 배경 |
+| VS 액센트 | #007ACC | 버튼, 강조 |
+| VS 텍스트 | #D4D4D4 | 주 텍스트 |
+| VS 테두리 | #3F3F46 | 테두리 |
+| 수입 녹색 | #4EC9B0 | 입금액 |
+| 지출 빨강 | #F48771 | 지출액 |
+| 이익 파랑 | #569CD6 | 순이익 |
+
+---
+
+## 📝 사용 방법
+
+### 1️⃣ 업체 등록
+1. 좌측 메뉴 → **업체 관리** 클릭
+2. **업체 추가** 버튼 클릭
+3. 업체 정보 입력 (이름, 타입, 계약일, 월세, 연락처 등)
+4. **저장** 클릭
+
+### 2️⃣ 입금 기록
+1. 좌측 메뉴 → **입금/지출 관리** 클릭
+2. **입금** 탭 선택
+3. 업체 선택, 입금일, 금액, 대상기간 입력
+4. **추가** 클릭
+
+### 3️⃣ 미수금 확인
+1. 좌측 메뉴 → **미수금 관리** 클릭
+2. 월별 미수금 자동 계산
+3. 업체별 납입 현황 확인
+
+### 4️⃣ Excel 내보내기
+1. **입금/지출 관리** 화면 우측 상단
+2. **Excel 내보내기** 버튼 클릭
+3. `office_manager_YYYYMMDD.xlsx` 파일 생성
+
+### 5️⃣ 알림 설정
+1. 좌측 메뉴 → **알림 설정** 클릭
+2. SMS/이메일 API 설정 입력
+3. **저장** 클릭
+4. **테스트 발송** 버튼으로 확인
+
+---
+
+## 🔧 문제 해결
+
+### NuGet 패키지 복원 오류
+```bash
+# Visual Studio에서
+도구 → 옵션 → NuGet 패키지 관리자 → 패키지 소스 → 확인
+
+# 명령줄에서
+dotnet nuget add source https://api.nuget.org/v3/index.json
+dotnet restore
+```
+
+### .NET 런타임 오류
+- [.NET 6.0 Desktop Runtime 다운로드](https://dotnet.microsoft.com/download/dotnet/6.0)
+
+### SQLite 오류
+- `System.Data.SQLite.Core` 패키지가 자동으로 네이티브 DLL을 포함합니다.
+- 수동 설치 필요 없음
+
+---
+
+## 📊 비교: Flutter 웹 vs WPF 데스크톱
+
+| 항목 | Flutter 웹 | WPF 데스크톱 |
+|------|-----------|--------------|
+| 플랫폼 | 웹 브라우저 (크로스플랫폼) | Windows 전용 |
+| 성능 | 보통 (브라우저 엔진) | 매우 빠름 (네이티브) |
+| 오프라인 | LocalStorage (제한적) | SQLite (완전 지원) |
+| SMS/이메일 | 백엔드 필요 | 직접 API 호출 가능 |
+| 배포 | 웹 서버 필요 | .exe 파일 단독 실행 |
+| UI/UX | Material Design | Visual Studio 스타일 |
+| 자동 알림 | 백엔드 스케줄러 필요 | Windows Task Scheduler |
+
+---
+
+## 📄 라이선스
+
+이 프로젝트는 교육 및 상업적 용도로 자유롭게 사용 가능합니다.
+
+---
+
+## 👨‍💻 개발 정보
+
+- **프로젝트명**: Office Manager WPF
+- **버전**: 2.0.0 (Visual Studio Theme + Auto Notification)
+- **개발 환경**: .NET 6.0, Visual Studio 2022
+- **데이터베이스**: SQLite 3
+- **UI 프레임워크**: WPF (Windows Presentation Foundation)
+
+---
+
+## 📞 지원
+
+문제가 발생하거나 기능 요청이 있으시면 이슈를 등록해주세요.
+
+**주요 개선사항 (v2.0.0)**:
+- ✅ Visual Studio Dark Theme 적용
+- ✅ SMS/이메일 자동 알림 시스템
+- ✅ 미수금 월 3회 자동 안내
+- ✅ 월세 납입 3회 자동 안내
+- ✅ 백그라운드 스케줄러 서비스
+- ✅ 알림 설정 화면 추가
+- ✅ 알림 발송 내역 화면 추가

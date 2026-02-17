@@ -3,264 +3,329 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:OfficeManagerWPF.ViewModels"
         Title="Office Manager - 공유오피스 관리 시스템" 
-        Height="700" Width="1000"
+        Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F5F5">
+        Background="#1E1E1E">
     
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
+        <!-- Visual Studio Dark Theme 색상 -->
+        <SolidColorBrush x:Key="VSDarkBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="VSLightBg" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="VSAccent" Color="#007ACC"/>
+        <SolidColorBrush x:Key="VSTextPrimary" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="VSTextSecondary" Color="#CCCCCC"/>
+        <SolidColorBrush x:Key="VSBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="VSHover" Color="#3E3E40"/>
+
         <!-- 버튼 스타일 -->
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+        <Style x:Key="VSButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
+            <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="20,15"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F8F8F8"/>
+                    <Setter Property="Background" Value="{StaticResource VSHover}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- 카드 스타일 -->
-        <Style x:Key="StatCard" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
+        <!-- 액센트 버튼 -->
+        <Style x:Key="VSAccentButton" TargetType="Button" BasedOn="{StaticResource VSButton}">
+            <Setter Property="Background" Value="{StaticResource VSAccent}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
-    <Grid Margin="30">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- 헤더 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,30">
-            <TextBlock Text="Office Manager" 
-                       FontSize="28" 
-                       FontWeight="Light" 
-                       Foreground="#333333"/>
-            <TextBlock Text="{Binding SelectedPeriod, StringFormat={}{0:yyyy년 MM월}}" 
-                       FontSize="16" 
-                       Foreground="#999999"
-                       Margin="0,5,0,0"/>
-        </StackPanel>
-
-        <!-- 통계 카드 -->
-        <StackPanel Grid.Row="1">
-            <!-- 총 입금액 -->
-            <Border Style="{StaticResource StatCard}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Background="#E8F5E9" 
-                            CornerRadius="8" 
-                            Width="48" 
-                            Height="48"
-                            VerticalAlignment="Center"
-                            Margin="0,0,15,0">
-                        <TextBlock Text="↓" 
-                                   FontSize="24" 
-                                   Foreground="#4CAF50" 
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="총 입금액" 
-                                   FontSize="13" 
-                                   Foreground="#999999"/>
-                        <TextBlock Text="{Binding TotalPayments, StringFormat={}{0:N0}원}" 
-                                   FontSize="20" 
-                                   FontWeight="Medium" 
-                                   Foreground="#333333"
-                                   Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 총 지출액 -->
-            <Border Style="{StaticResource StatCard}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Background="#FFEBEE" 
-                            CornerRadius="8" 
-                            Width="48" 
-                            Height="48"
-                            VerticalAlignment="Center"
-                            Margin="0,0,15,0">
-                        <TextBlock Text="↑" 
-                                   FontSize="24" 
-                                   Foreground="#F44336" 
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="총 지출액" 
-                                   FontSize="13" 
-                                   Foreground="#999999"/>
-                        <TextBlock Text="{Binding TotalExpenses, StringFormat={}{0:N0}원}" 
-                                   FontSize="20" 
-                                   FontWeight="Medium" 
-                                   Foreground="#333333"
-                                   Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 순이익 -->
-            <Border Style="{StaticResource StatCard}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Background="#E3F2FD" 
-                            CornerRadius="8" 
-                            Width="48" 
-                            Height="48"
-                            VerticalAlignment="Center"
-                            Margin="0,0,15,0">
-                        <TextBlock Text="₩" 
-                                   FontSize="24" 
-                                   Foreground="#2196F3" 
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="순이익" 
-                                   FontSize="13" 
-                                   Foreground="#999999"/>
-                        <TextBlock Text="{Binding NetProfit, StringFormat={}{0:N0}원}" 
-                                   FontSize="20" 
-                                   FontWeight="Medium" 
-                                   Foreground="#333333"
-                                   Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- 빠른 정보 -->
-            <Grid Margin="0,0,0,30">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Style="{StaticResource StatCard}" Margin="0">
+        <!-- 왼쪽 사이드바 (VS 스타일) -->
+        <Border Grid.Column="0" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="0,0,1,0">
+            <StackPanel>
+                <!-- 로고 및 타이틀 -->
+                <Border Background="{StaticResource VSAccent}" Padding="20,15">
                     <StackPanel>
-                        <TextBlock Text="🏢" FontSize="20"/>
-                        <TextBlock Text="활성 업체" 
-                                   FontSize="12" 
-                                   Foreground="#999999"
-                                   Margin="0,10,0,5"/>
-                        <TextBlock Text="{Binding ActiveCompanies, StringFormat={}{0}개}" 
-                                   FontSize="18" 
-                                   FontWeight="Medium" 
-                                   Foreground="#333333"/>
+                        <TextBlock Text="OFFICE MANAGER" 
+                                   Foreground="White" 
+                                   FontSize="14" 
+                                   FontWeight="Bold"
+                                   LetterSpacing="1"/>
+                        <TextBlock Text="공유오피스 관리" 
+                                   Foreground="#E0E0E0" 
+                                   FontSize="11"
+                                   Margin="0,3,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource StatCard}" Margin="0">
-                    <StackPanel>
-                        <TextBlock Text="⚠️" FontSize="20"/>
-                        <TextBlock Text="미수금" 
-                                   FontSize="12" 
-                                   Foreground="#999999"
-                                   Margin="0,10,0,5"/>
-                        <TextBlock Text="{Binding UnpaidCount, StringFormat={}{0}건}" 
-                                   FontSize="18" 
-                                   FontWeight="Medium" 
-                                   Foreground="#333333"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                <!-- 메뉴 항목 -->
+                <StackPanel Margin="0,10,0,0">
+                    <!-- 대시보드 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0"
+                            Background="#2D2D30">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="대시보드" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- 빠른 작업 -->
-            <TextBlock Text="빠른 작업" 
-                       FontSize="18" 
-                       FontWeight="Light" 
-                       Foreground="#333333"
-                       Margin="0,0,0,15"/>
+                    <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
 
-            <Button Style="{StaticResource ModernButton}" 
-                    Command="{Binding OpenCompanyManagementCommand}"
-                    Margin="0,0,0,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="🏢" FontSize="20" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <TextBlock Grid.Column="1" Text="업체 관리" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="›" FontSize="20" Foreground="#999999" VerticalAlignment="Center"/>
-                </Grid>
-            </Button>
+                    <!-- 업체 관리 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenCompanyManagementCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🏢" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="업체 관리" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
 
-            <Button Style="{StaticResource ModernButton}" 
-                    Command="{Binding OpenPaymentExpenseCommand}"
-                    Margin="0,0,0,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="💰" FontSize="20" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <TextBlock Grid.Column="1" Text="입금/지출 관리" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="›" FontSize="20" Foreground="#999999" VerticalAlignment="Center"/>
-                </Grid>
-            </Button>
+                    <!-- 입금/지출 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenPaymentExpenseCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💰" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="입금/지출 관리" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
 
-            <Button Style="{StaticResource ModernButton}" 
-                    Command="{Binding OpenUnpaidManagementCommand}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="📋" FontSize="20" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <TextBlock Grid.Column="1" Text="미수금 관리" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="›" FontSize="20" Foreground="#999999" VerticalAlignment="Center"/>
-                </Grid>
-            </Button>
-        </StackPanel>
+                    <!-- 미수금 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenUnpaidManagementCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠️" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="미수금 관리" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
+
+                    <!-- 알림 설정 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenNotificationSettingsCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔔" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="알림 설정" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 알림 내역 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenNotificationLogsCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="알림 내역" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 메인 컨텐츠 영역 -->
+        <Grid Grid.Column="1" Background="{StaticResource VSDarkBg}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="30">
+                    <!-- 헤더 -->
+                    <Grid Margin="0,0,0,25">
+                        <StackPanel>
+                            <TextBlock Text="DASHBOARD" 
+                                       Foreground="{StaticResource VSTextPrimary}" 
+                                       FontSize="24" 
+                                       FontWeight="Light"
+                                       LetterSpacing="1"/>
+                            <TextBlock Text="{Binding SelectedPeriod, StringFormat={}{0}}" 
+                                       Foreground="{StaticResource VSTextSecondary}" 
+                                       FontSize="13"
+                                       Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 통계 카드 그리드 -->
+                    <Grid Margin="0,0,0,25">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 총 입금액 -->
+                        <Border Grid.Column="0" Background="{StaticResource VSLightBg}" 
+                                BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="총 입금액" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding TotalPayments, StringFormat={}{0:N0}원}" 
+                                           Foreground="#4EC9B0" 
+                                           FontSize="28" 
+                                           FontWeight="Bold"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="↑ Income" 
+                                           Foreground="#4EC9B0" 
+                                           FontSize="11"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 총 지출액 -->
+                        <Border Grid.Column="2" Background="{StaticResource VSLightBg}" 
+                                BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="총 지출액" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding TotalExpenses, StringFormat={}{0:N0}원}" 
+                                           Foreground="#F48771" 
+                                           FontSize="28" 
+                                           FontWeight="Bold"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="↓ Expense" 
+                                           Foreground="#F48771" 
+                                           FontSize="11"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 순이익 -->
+                        <Border Grid.Column="4" Background="{StaticResource VSLightBg}" 
+                                BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="순이익" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding NetProfit, StringFormat={}{0:N0}원}" 
+                                           Foreground="#569CD6" 
+                                           FontSize="28" 
+                                           FontWeight="Bold"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="= Net Profit" 
+                                           Foreground="#569CD6" 
+                                           FontSize="11"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- 빠른 정보 -->
+                    <Grid Margin="0,0,0,25">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="{StaticResource VSLightBg}" 
+                                BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="ACTIVE COMPANIES" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="11"
+                                           LetterSpacing="1"/>
+                                <TextBlock Text="{Binding ActiveCompanies, StringFormat={}{0}}" 
+                                           Foreground="{StaticResource VSTextPrimary}" 
+                                           FontSize="36" 
+                                           FontWeight="Bold"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="개 업체" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="12"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="{StaticResource VSLightBg}" 
+                                BorderBrush="#DC3545" BorderThickness="2" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="UNPAID ACCOUNTS" 
+                                           Foreground="{StaticResource VSTextSecondary}" 
+                                           FontSize="11"
+                                           LetterSpacing="1"/>
+                                <TextBlock Text="{Binding UnpaidCount, StringFormat={}{0}}" 
+                                           Foreground="#DC3545" 
+                                           FontSize="36" 
+                                           FontWeight="Bold"
+                                           Margin="0,8,0,0"/>
+                                <TextBlock Text="건 미수금" 
+                                           Foreground="#DC3545" 
+                                           FontSize="12"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- 안내 텍스트 -->
+                    <Border Background="{StaticResource VSLightBg}" 
+                            BorderBrush="{StaticResource VSAccent}" 
+                            BorderThickness="2,0,0,0" 
+                            Padding="15"
+                            Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="💡 시스템 안내" 
+                                       Foreground="{StaticResource VSTextPrimary}" 
+                                       FontSize="13"
+                                       FontWeight="SemiBold"/>
+                            <TextBlock Text="• 미수금 알림: 월초(1-5일), 중순(13-17일), 월말(25-30일) 자동 발송" 
+                                       Foreground="{StaticResource VSTextSecondary}" 
+                                       FontSize="12"
+                                       Margin="0,8,0,3"/>
+                            <TextBlock Text="• 월세 납부 알림: 7일 전, 3일 전, 당일 자동 발송 (SMS + 이메일)" 
+                                       Foreground="{StaticResource VSTextSecondary}" 
+                                       FontSize="12"
+                                       Margin="0,0,0,3"/>
+                            <TextBlock Text="• 알림 설정 메뉴에서 SMS/이메일 설정을 완료해주세요" 
+                                       Foreground="#DCDCAA" 
+                                       FontSize="12"
+                                       Margin="0,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>

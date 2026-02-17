@@ -68,9 +68,48 @@ namespace OfficeManagerWPF.Services
                         Notes TEXT
                     )";
 
+                // NotificationSettings 테이블
+                string createNotificationSettingsTable = @"
+                    CREATE TABLE IF NOT EXISTS NotificationSettings (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        EnableSmsNotifications INTEGER NOT NULL DEFAULT 1,
+                        EnableEmailNotifications INTEGER NOT NULL DEFAULT 1,
+                        UnpaidEarlyMonth INTEGER NOT NULL DEFAULT 1,
+                        UnpaidMidMonth INTEGER NOT NULL DEFAULT 1,
+                        UnpaidEndMonth INTEGER NOT NULL DEFAULT 1,
+                        RentWeekBefore INTEGER NOT NULL DEFAULT 1,
+                        RentThreeDaysBefore INTEGER NOT NULL DEFAULT 1,
+                        RentDueDate INTEGER NOT NULL DEFAULT 1,
+                        SmsApiKey TEXT,
+                        SmsApiSecret TEXT,
+                        SmsSenderNumber TEXT,
+                        EmailSmtpServer TEXT,
+                        EmailSmtpPort TEXT,
+                        EmailAddress TEXT,
+                        EmailPassword TEXT,
+                        EmailSenderName TEXT
+                    )";
+
+                // NotificationLogs 테이블
+                string createNotificationLogsTable = @"
+                    CREATE TABLE IF NOT EXISTS NotificationLogs (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        SentDate TEXT NOT NULL,
+                        NotificationType TEXT NOT NULL,
+                        Category TEXT NOT NULL,
+                        CompanyId INTEGER NOT NULL,
+                        CompanyName TEXT NOT NULL,
+                        Recipient TEXT NOT NULL,
+                        Message TEXT NOT NULL,
+                        IsSuccess INTEGER NOT NULL,
+                        ErrorMessage TEXT
+                    )";
+
                 ExecuteNonQuery(createCompaniesTable, connection);
                 ExecuteNonQuery(createPaymentsTable, connection);
                 ExecuteNonQuery(createExpensesTable, connection);
+                ExecuteNonQuery(createNotificationSettingsTable, connection);
+                ExecuteNonQuery(createNotificationLogsTable, connection);
             }
         }
 
@@ -322,6 +361,172 @@ namespace OfficeManagerWPF.Services
             {
                 command.ExecuteNonQuery();
             }
+        }
+
+        // NotificationSettings CRUD
+        public NotificationSettings GetNotificationSettings()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT * FROM NotificationSettings LIMIT 1";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new NotificationSettings
+                        {
+                            Id = reader.GetInt32(0),
+                            EnableSmsNotifications = reader.GetInt32(1) == 1,
+                            EnableEmailNotifications = reader.GetInt32(2) == 1,
+                            UnpaidEarlyMonth = reader.GetInt32(3) == 1,
+                            UnpaidMidMonth = reader.GetInt32(4) == 1,
+                            UnpaidEndMonth = reader.GetInt32(5) == 1,
+                            RentWeekBefore = reader.GetInt32(6) == 1,
+                            RentThreeDaysBefore = reader.GetInt32(7) == 1,
+                            RentDueDate = reader.GetInt32(8) == 1,
+                            SmsApiKey = reader.IsDBNull(9) ? null : reader.GetString(9),
+                            SmsApiSecret = reader.IsDBNull(10) ? null : reader.GetString(10),
+                            SmsSenderNumber = reader.IsDBNull(11) ? null : reader.GetString(11),
+                            EmailSmtpServer = reader.IsDBNull(12) ? null : reader.GetString(12),
+                            EmailSmtpPort = reader.IsDBNull(13) ? null : reader.GetString(13),
+                            EmailAddress = reader.IsDBNull(14) ? null : reader.GetString(14),
+                            EmailPassword = reader.IsDBNull(15) ? null : reader.GetString(15),
+                            EmailSenderName = reader.IsDBNull(16) ? null : reader.GetString(16)
+                        };
+                    }
+                }
+            }
+            // 설정이 없으면 기본값 반환
+            return new NotificationSettings();
+        }
+
+        public void SaveNotificationSettings(NotificationSettings settings)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                
+                // 기존 설정 확인
+                string checkQuery = "SELECT COUNT(*) FROM NotificationSettings";
+                int count = 0;
+                using (var checkCommand = new SQLiteCommand(checkQuery, connection))
+                {
+                    count = Convert.ToInt32(checkCommand.ExecuteScalar());
+                }
+
+                string query;
+                if (count == 0)
+                {
+                    // Insert
+                    query = @"INSERT INTO NotificationSettings (
+                        EnableSmsNotifications, EnableEmailNotifications,
+                        UnpaidEarlyMonth, UnpaidMidMonth, UnpaidEndMonth,
+                        RentWeekBefore, RentThreeDaysBefore, RentDueDate,
+                        SmsApiKey, SmsApiSecret, SmsSenderNumber,
+                        EmailSmtpServer, EmailSmtpPort, EmailAddress, EmailPassword, EmailSenderName
+                    ) VALUES (
+                        @EnableSms, @EnableEmail,
+                        @UnpaidEarly, @UnpaidMid, @UnpaidEnd,
+                        @RentWeek, @RentThree, @RentDue,
+                        @SmsKey, @SmsSecret, @SmsSender,
+                        @EmailServer, @EmailPort, @EmailAddr, @EmailPass, @EmailName
+                    )";
+                }
+                else
+                {
+                    // Update
+                    query = @"UPDATE NotificationSettings SET
+                        EnableSmsNotifications=@EnableSms, EnableEmailNotifications=@EnableEmail,
+                        UnpaidEarlyMonth=@UnpaidEarly, UnpaidMidMonth=@UnpaidMid, UnpaidEndMonth=@UnpaidEnd,
+                        RentWeekBefore=@RentWeek, RentThreeDaysBefore=@RentThree, RentDueDate=@RentDue,
+                        SmsApiKey=@SmsKey, SmsApiSecret=@SmsSecret, SmsSenderNumber=@SmsSender,
+                        EmailSmtpServer=@EmailServer, EmailSmtpPort=@EmailPort, 
+                        EmailAddress=@EmailAddr, EmailPassword=@EmailPass, EmailSenderName=@EmailName";
+                }
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@EnableSms", settings.EnableSmsNotifications ? 1 : 0);
+                    command.Parameters.AddWithValue("@EnableEmail", settings.EnableEmailNotifications ? 1 : 0);
+                    command.Parameters.AddWithValue("@UnpaidEarly", settings.UnpaidEarlyMonth ? 1 : 0);
+                    command.Parameters.AddWithValue("@UnpaidMid", settings.UnpaidMidMonth ? 1 : 0);
+                    command.Parameters.AddWithValue("@UnpaidEnd", settings.UnpaidEndMonth ? 1 : 0);
+                    command.Parameters.AddWithValue("@RentWeek", settings.RentWeekBefore ? 1 : 0);
+                    command.Parameters.AddWithValue("@RentThree", settings.RentThreeDaysBefore ? 1 : 0);
+                    command.Parameters.AddWithValue("@RentDue", settings.RentDueDate ? 1 : 0);
+                    command.Parameters.AddWithValue("@SmsKey", (object)settings.SmsApiKey ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@SmsSecret", (object)settings.SmsApiSecret ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@SmsSender", (object)settings.SmsSenderNumber ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EmailServer", (object)settings.EmailSmtpServer ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EmailPort", (object)settings.EmailSmtpPort ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EmailAddr", (object)settings.EmailAddress ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EmailPass", (object)settings.EmailPassword ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EmailName", (object)settings.EmailSenderName ?? DBNull.Value);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // NotificationLog CRUD
+        public void AddNotificationLog(NotificationLog log)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"INSERT INTO NotificationLogs (
+                    SentDate, NotificationType, Category, CompanyId, CompanyName,
+                    Recipient, Message, IsSuccess, ErrorMessage
+                ) VALUES (
+                    @SentDate, @NotificationType, @Category, @CompanyId, @CompanyName,
+                    @Recipient, @Message, @IsSuccess, @ErrorMessage
+                )";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@SentDate", log.SentDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    command.Parameters.AddWithValue("@NotificationType", log.NotificationType);
+                    command.Parameters.AddWithValue("@Category", log.Category);
+                    command.Parameters.AddWithValue("@CompanyId", log.CompanyId);
+                    command.Parameters.AddWithValue("@CompanyName", log.CompanyName);
+                    command.Parameters.AddWithValue("@Recipient", log.Recipient);
+                    command.Parameters.AddWithValue("@Message", log.Message);
+                    command.Parameters.AddWithValue("@IsSuccess", log.IsSuccess ? 1 : 0);
+                    command.Parameters.AddWithValue("@ErrorMessage", (object)log.ErrorMessage ?? DBNull.Value);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public List<NotificationLog> GetNotificationLogs(int limit = 100)
+        {
+            var logs = new List<NotificationLog>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = $"SELECT * FROM NotificationLogs ORDER BY SentDate DESC LIMIT {limit}";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        logs.Add(new NotificationLog
+                        {
+                            Id = reader.GetInt32(0),
+                            SentDate = DateTime.Parse(reader.GetString(1)),
+                            NotificationType = reader.GetString(2),
+                            Category = reader.GetString(3),
+                            CompanyId = reader.GetInt32(4),
+                            CompanyName = reader.GetString(5),
+                            Recipient = reader.GetString(6),
+                            Message = reader.GetString(7),
+                            IsSuccess = reader.GetInt32(8) == 1,
+                            ErrorMessage = reader.IsDBNull(9) ? null : reader.GetString(9)
+                        });
+                    }
+                }
+            }
+            return logs;
         }
     }
 }
