@@ -4,7 +4,7 @@
         Title="알림 발송 내역" Height="600" Width="900"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
-        Icon="pack://application:,,,/Resources/app.ico">
+        Icon="/Resources/app.ico">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

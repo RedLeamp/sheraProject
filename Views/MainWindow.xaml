@@ -6,7 +6,7 @@
         Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
         Background="#1E1E1E"
-        Icon="pack://application:,,,/Resources/app.ico">
+        Icon="/Resources/app.ico">
     
     <Window.DataContext>
         <local:MainViewModel/>
