@@ -13,6 +13,7 @@ namespace OfficeManagerWPF.Views
         public UnpaidManagementWindow(string period)
         {
             InitializeComponent();
+            SetWindowIcon();
             _dbService = new DatabaseService();
             _period = period;
             
@@ -38,6 +39,19 @@ namespace OfficeManagerWPF.Views
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+    
+        private void SetWindowIcon()
+        {
+            try
+            {
+                var iconUri = new Uri("pack://application:,,,/Resources/app.ico", UriKind.Absolute);
+                this.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(iconUri);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"아이콘 로딩 실패: {ex.Message}");
+            }
         }
     }
 }

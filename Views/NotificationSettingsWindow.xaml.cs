@@ -14,6 +14,7 @@ namespace OfficeManagerWPF.Views
         public NotificationSettingsWindow()
         {
             InitializeComponent();
+            SetWindowIcon();
             _smsService = new SmsService();
             _emailService = new EmailService();
             _databaseService = new DatabaseService();
@@ -155,6 +156,19 @@ namespace OfficeManagerWPF.Views
         {
             DialogResult = false;
             Close();
+        }
+    
+        private void SetWindowIcon()
+        {
+            try
+            {
+                var iconUri = new Uri("pack://application:,,,/Resources/app.ico", UriKind.Absolute);
+                this.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(iconUri);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"아이콘 로딩 실패: {ex.Message}");
+            }
         }
     }
 }
