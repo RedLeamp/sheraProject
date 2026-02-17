@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>OfficeManager</AssemblyName>
+    <RootNamespace>OfficeManagerWPF</RootNamespace>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- SQLite -->
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+    
+    <!-- Excel (ClosedXML) -->
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    
+    <!-- Document Format OpenXML (ClosedXML 의존성) -->
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
+</Project>
