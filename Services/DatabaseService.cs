@@ -68,7 +68,6 @@ namespace OfficeManagerWPF.Services
                         Notes TEXT
                     )";
 
-                // NotificationSettings 테이블
                 string createNotificationSettingsTable = @"
                     CREATE TABLE IF NOT EXISTS NotificationSettings (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,7 +89,6 @@ namespace OfficeManagerWPF.Services
                         EmailSenderName TEXT
                     )";
 
-                // NotificationLogs 테이블
                 string createNotificationLogsTable = @"
                     CREATE TABLE IF NOT EXISTS NotificationLogs (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -363,44 +361,6 @@ namespace OfficeManagerWPF.Services
             }
         }
 
-        // NotificationSettings CRUD
-        public NotificationSettings GetNotificationSettings()
-        {
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                connection.Open();
-                string query = "SELECT * FROM NotificationSettings LIMIT 1";
-                using (var command = new SQLiteCommand(query, connection))
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        return new NotificationSettings
-                        {
-                            Id = reader.GetInt32(0),
-                            EnableSmsNotifications = reader.GetInt32(1) == 1,
-                            EnableEmailNotifications = reader.GetInt32(2) == 1,
-                            UnpaidEarlyMonth = reader.GetInt32(3) == 1,
-                            UnpaidMidMonth = reader.GetInt32(4) == 1,
-                            UnpaidEndMonth = reader.GetInt32(5) == 1,
-                            RentWeekBefore = reader.GetInt32(6) == 1,
-                            RentThreeDaysBefore = reader.GetInt32(7) == 1,
-                            RentDueDate = reader.GetInt32(8) == 1,
-                            SmsApiKey = reader.IsDBNull(9) ? null : reader.GetString(9),
-                            SmsApiSecret = reader.IsDBNull(10) ? null : reader.GetString(10),
-                            SmsSenderNumber = reader.IsDBNull(11) ? null : reader.GetString(11),
-                            EmailSmtpServer = reader.IsDBNull(12) ? null : reader.GetString(12),
-                            EmailSmtpPort = reader.IsDBNull(13) ? null : reader.GetString(13),
-                            EmailAddress = reader.IsDBNull(14) ? null : reader.GetString(14),
-                            EmailPassword = reader.IsDBNull(15) ? null : reader.GetString(15),
-                            EmailSenderName = reader.IsDBNull(16) ? null : reader.GetString(16)
-                        };
-                    }
-                }
-            }
-            // 설정이 없으면 기본값 반환
-            return new NotificationSettings();
-        }
 
         public void SaveNotificationSettings(NotificationSettings settings)
         {
@@ -469,64 +429,6 @@ namespace OfficeManagerWPF.Services
             }
         }
 
-        // NotificationLog CRUD
-        public void AddNotificationLog(NotificationLog log)
-        {
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                connection.Open();
-                string query = @"INSERT INTO NotificationLogs (
-                    SentDate, NotificationType, Category, CompanyId, CompanyName,
-                    Recipient, Message, IsSuccess, ErrorMessage
-                ) VALUES (
-                    @SentDate, @NotificationType, @Category, @CompanyId, @CompanyName,
-                    @Recipient, @Message, @IsSuccess, @ErrorMessage
-                )";
-                using (var command = new SQLiteCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@SentDate", log.SentDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                    command.Parameters.AddWithValue("@NotificationType", log.NotificationType);
-                    command.Parameters.AddWithValue("@Category", log.Category);
-                    command.Parameters.AddWithValue("@CompanyId", log.CompanyId);
-                    command.Parameters.AddWithValue("@CompanyName", log.CompanyName);
-                    command.Parameters.AddWithValue("@Recipient", log.Recipient);
-                    command.Parameters.AddWithValue("@Message", log.Message);
-                    command.Parameters.AddWithValue("@IsSuccess", log.IsSuccess ? 1 : 0);
-                    command.Parameters.AddWithValue("@ErrorMessage", (object)log.ErrorMessage ?? DBNull.Value);
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
 
-        public List<NotificationLog> GetNotificationLogs(int limit = 100)
-        {
-            var logs = new List<NotificationLog>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                connection.Open();
-                string query = $"SELECT * FROM NotificationLogs ORDER BY SentDate DESC LIMIT {limit}";
-                using (var command = new SQLiteCommand(query, connection))
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        logs.Add(new NotificationLog
-                        {
-                            Id = reader.GetInt32(0),
-                            SentDate = DateTime.Parse(reader.GetString(1)),
-                            NotificationType = reader.GetString(2),
-                            Category = reader.GetString(3),
-                            CompanyId = reader.GetInt32(4),
-                            CompanyName = reader.GetString(5),
-                            Recipient = reader.GetString(6),
-                            Message = reader.GetString(7),
-                            IsSuccess = reader.GetInt32(8) == 1,
-                            ErrorMessage = reader.IsDBNull(9) ? null : reader.GetString(9)
-                        });
-                    }
-                }
-            }
-            return logs;
-        }
     }
 }
