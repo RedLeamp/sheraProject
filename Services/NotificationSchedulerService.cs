@@ -110,10 +110,10 @@ namespace OfficeManagerWPF.Services
                     if (unpaidAmount > 0)
                     {
                         // SMS 발송
-                        if (!string.IsNullOrEmpty(company.ContactPhone))
+                        if (!string.IsNullOrEmpty(company.PhoneNumber))
                         {
                             await _smsService.SendUnpaidReminderSmsAsync(
-                                company.ContactPhone,
+                                company.PhoneNumber,
                                 company.Name,
                                 unpaidAmount,
                                 currentPeriod
@@ -121,10 +121,10 @@ namespace OfficeManagerWPF.Services
                         }
 
                         // 이메일 발송
-                        if (!string.IsNullOrEmpty(company.ContactEmail))
+                        if (!string.IsNullOrEmpty(company.Email))
                         {
                             await _emailService.SendUnpaidReminderEmailAsync(
-                                company.ContactEmail,
+                                company.Email,
                                 company.Name,
                                 unpaidAmount,
                                 currentPeriod
@@ -152,10 +152,8 @@ namespace OfficeManagerWPF.Services
 
                 foreach (var company in companies.Where(c => c.IsActive))
                 {
-                    if (company.ContractDate == null) continue;
-
                     // 매월 계약일자를 납입일로 설정
-                    var contractDay = company.ContractDate.Value.Day;
+                    var contractDay = company.ContractDate.Day;
                     var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
                     var paymentDay = Math.Min(contractDay, daysInMonth);
 
@@ -166,10 +164,10 @@ namespace OfficeManagerWPF.Services
                     if (daysRemaining == 7 || daysRemaining == 3 || daysRemaining == 0)
                     {
                         // SMS 발송
-                        if (!string.IsNullOrEmpty(company.ContactPhone))
+                        if (!string.IsNullOrEmpty(company.PhoneNumber))
                         {
                             await _smsService.SendRentReminderSmsAsync(
-                                company.ContactPhone,
+                                company.PhoneNumber,
                                 company.Name,
                                 company.MonthlyFee,
                                 daysRemaining
@@ -177,10 +175,10 @@ namespace OfficeManagerWPF.Services
                         }
 
                         // 이메일 발송
-                        if (!string.IsNullOrEmpty(company.ContactEmail))
+                        if (!string.IsNullOrEmpty(company.Email))
                         {
                             await _emailService.SendRentReminderEmailAsync(
-                                company.ContactEmail,
+                                company.Email,
                                 company.Name,
                                 company.MonthlyFee,
                                 daysRemaining
@@ -207,10 +205,10 @@ namespace OfficeManagerWPF.Services
                 var result = true;
 
                 // SMS 테스트
-                if (!string.IsNullOrEmpty(company.ContactPhone))
+                if (!string.IsNullOrEmpty(company.PhoneNumber))
                 {
                     result &= await _smsService.SendRentReminderSmsAsync(
-                        company.ContactPhone,
+                        company.PhoneNumber,
                         company.Name,
                         company.MonthlyFee,
                         0
@@ -218,10 +216,10 @@ namespace OfficeManagerWPF.Services
                 }
 
                 // 이메일 테스트
-                if (!string.IsNullOrEmpty(company.ContactEmail))
+                if (!string.IsNullOrEmpty(company.Email))
                 {
                     result &= await _emailService.SendRentReminderEmailAsync(
-                        company.ContactEmail,
+                        company.Email,
                         company.Name,
                         company.MonthlyFee,
                         0
