@@ -99,6 +99,20 @@
 
                     <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
 
+                    <!-- 데이터 관리 -->
+                    <Button Style="{StaticResource VSButton}" 
+                            Command="{Binding OpenDataGridCommand}"
+                            Padding="20,12"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
+                            <TextBlock Text="데이터 관리" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
+
                     <!-- 업체 관리 -->
                     <Button Style="{StaticResource VSButton}" 
                             Command="{Binding OpenCompanyManagementCommand}"
@@ -132,20 +146,6 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚠️" FontSize="16" Margin="0,0,10,0"/>
                             <TextBlock Text="미수금 관리" FontSize="13"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
-
-                    <!-- 데이터 관리 -->
-                    <Button Style="{StaticResource VSButton}" 
-                            Command="{Binding OpenDataGridCommand}"
-                            Padding="20,12"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="데이터 관리" FontSize="13"/>
                         </StackPanel>
                     </Button>
 
