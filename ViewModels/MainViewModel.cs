@@ -26,6 +26,7 @@ namespace OfficeManagerWPF.ViewModels
             OpenCompanyManagementCommand = new RelayCommand(_ => OpenCompanyManagement());
             OpenPaymentExpenseCommand = new RelayCommand(_ => OpenPaymentExpense());
             OpenUnpaidManagementCommand = new RelayCommand(_ => OpenUnpaidManagement());
+            OpenDataGridCommand = new RelayCommand(_ => OpenDataGrid());
             OpenNotificationSettingsCommand = new RelayCommand(_ => OpenNotificationSettings());
             OpenNotificationLogsCommand = new RelayCommand(_ => OpenNotificationLogs());
             
@@ -77,6 +78,7 @@ namespace OfficeManagerWPF.ViewModels
         public ICommand OpenCompanyManagementCommand { get; }
         public ICommand OpenPaymentExpenseCommand { get; }
         public ICommand OpenUnpaidManagementCommand { get; }
+        public ICommand OpenDataGridCommand { get; }
         public ICommand OpenNotificationSettingsCommand { get; }
         public ICommand OpenNotificationLogsCommand { get; }
 
@@ -116,6 +118,13 @@ namespace OfficeManagerWPF.ViewModels
         private void OpenUnpaidManagement()
         {
             var window = new Views.UnpaidManagementWindow(SelectedPeriod);
+            window.ShowDialog();
+            RefreshStatistics();
+        }
+
+        private void OpenDataGrid()
+        {
+            var window = new Views.DataGridWindow();
             window.ShowDialog();
             RefreshStatistics();
         }
