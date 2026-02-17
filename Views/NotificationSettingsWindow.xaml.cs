@@ -124,7 +124,7 @@ namespace OfficeManagerWPF.Views
                 if (result)
                 {
                     MessageBox.Show(
-                        $"테스트 알림이 발송되었습니다.\n\n업체: {testCompany.Name}\n연락처: {testCompany.ContactPhone}\n이메일: {testCompany.ContactEmail}",
+                        $"테스트 알림이 발송되었습니다.\n\n업체: {testCompany.Name}\n연락처: {testCompany.PhoneNumber}\n이메일: {testCompany.Email}",
                         "테스트 발송 완료",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information
