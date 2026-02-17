@@ -75,8 +75,7 @@
                         <TextBlock Text="OFFICE MANAGER" 
                                    Foreground="White" 
                                    FontSize="14" 
-                                   FontWeight="Bold"
-                                   LetterSpacing="1"/>
+                                   FontWeight="Bold"/>
                         <TextBlock Text="공유오피스 관리" 
                                    Foreground="#E0E0E0" 
                                    FontSize="11"
@@ -175,8 +174,7 @@
                             <TextBlock Text="DASHBOARD" 
                                        Foreground="{StaticResource VSTextPrimary}" 
                                        FontSize="24" 
-                                       FontWeight="Light"
-                                       LetterSpacing="1"/>
+                                       FontWeight="Light"/>
                             <TextBlock Text="{Binding SelectedPeriod, StringFormat={}{0}}" 
                                        Foreground="{StaticResource VSTextSecondary}" 
                                        FontSize="13"
@@ -265,8 +263,7 @@
                             <StackPanel>
                                 <TextBlock Text="ACTIVE COMPANIES" 
                                            Foreground="{StaticResource VSTextSecondary}" 
-                                           FontSize="11"
-                                           LetterSpacing="1"/>
+                                           FontSize="11"/>
                                 <TextBlock Text="{Binding ActiveCompanies, StringFormat={}{0}}" 
                                            Foreground="{StaticResource VSTextPrimary}" 
                                            FontSize="36" 
@@ -284,8 +281,7 @@
                             <StackPanel>
                                 <TextBlock Text="UNPAID ACCOUNTS" 
                                            Foreground="{StaticResource VSTextSecondary}" 
-                                           FontSize="11"
-                                           LetterSpacing="1"/>
+                                           FontSize="11"/>
                                 <TextBlock Text="{Binding UnpaidCount, StringFormat={}{0}}" 
                                            Foreground="#DC3545" 
                                            FontSize="36" 
