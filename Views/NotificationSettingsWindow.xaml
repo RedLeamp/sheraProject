@@ -4,7 +4,6 @@
         Title="알림 설정" Height="600" Width="700"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Icon="/Resources/app.ico">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

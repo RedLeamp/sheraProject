@@ -5,8 +5,7 @@
         Title="Office Manager - 공유오피스 관리 시스템" 
         Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E"
-        Icon="/Resources/app.ico">
+        Background="#1E1E1E">
     
     <Window.DataContext>
         <local:MainViewModel/>
