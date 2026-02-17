@@ -17,7 +17,7 @@ namespace OfficeManagerWPF.Views
             InitializeComponent();
             SetWindowIcon();
             _dbService = new DatabaseService();
-            _excelService = new ExcelService(_dbService);
+            _excelService = new ExcelService();
             _currentPeriod = DateTime.Now.ToString("yyyy-MM");
             
             PeriodText.Text = DateTime.Now.ToString("yyyy년 MM월");
@@ -49,7 +49,10 @@ namespace OfficeManagerWPF.Views
 
                 if (dialog.ShowDialog() == true)
                 {
-                    _excelService.ExportToExcel(dialog.FileName);
+                    // 입금 데이터 Export
+                    var payments = _dbService.GetPaymentsByPeriod(_currentPeriod);
+                    _excelService.ExportPaymentsToExcel(payments, dialog.FileName);
+                    
                     MessageBox.Show("Excel 파일이 성공적으로 내보내졌습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -70,9 +73,16 @@ namespace OfficeManagerWPF.Views
 
                 if (dialog.ShowDialog() == true)
                 {
-                    _excelService.ImportFromExcel(dialog.FileName);
+                    // 입금 데이터 Import
+                    var payments = _excelService.ImportPaymentsFromExcel(dialog.FileName);
+                    
+                    foreach (var payment in payments)
+                    {
+                        _dbService.AddPayment(payment);
+                    }
+                    
                     LoadData();
-                    MessageBox.Show("Excel 파일을 성공적으로 가져왔습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Excel 파일에서 {payments.Count}건의 입금 데이터를 가져왔습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
