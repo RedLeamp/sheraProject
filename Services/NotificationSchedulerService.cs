@@ -102,9 +102,10 @@ namespace OfficeManagerWPF.Services
 
                 foreach (var company in companies.Where(c => c.IsActive))
                 {
-                    // 미수금 계산
-                    var payments = _databaseService.GetPaymentsByCompanyAndPeriod(company.Id, currentPeriod);
-                    var totalPaid = payments.Sum(p => p.Amount);
+                    // 미수금 계산 - 해당 업체의 당월 입금 내역 조회
+                    var allPayments = _databaseService.GetPaymentsByPeriod(currentPeriod);
+                    var companyPayments = allPayments.Where(p => p.CompanyId == company.Id).ToList();
+                    var totalPaid = companyPayments.Sum(p => p.Amount);
                     var unpaidAmount = company.MonthlyFee - totalPaid;
 
                     if (unpaidAmount > 0)
