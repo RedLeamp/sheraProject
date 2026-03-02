@@ -132,6 +132,9 @@ namespace OfficeManagerWPF
                     _dbService.ClearAllCompanies();
                     _dbService.ClearAllPayments();
                     MessageBox.Show("업체 및 입금 데이터가 초기화되었습니다.", "초기화 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // 4개 탭 모두 새로고침
+                    LoadCompanyData();
                 }
                 catch (Exception ex)
                 {

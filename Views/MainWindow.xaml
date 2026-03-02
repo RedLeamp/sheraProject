@@ -437,6 +437,7 @@
                                             <Button Content="🔄 새로고침" Click="RefreshResidentCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
                                         </StackPanel>
 
                                         <!-- 상주업체 데이터그리드 -->
@@ -494,6 +495,7 @@
                                             <Button Content="🔄 새로고침" Click="RefreshNonResidentCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
                                         </StackPanel>
 
                                         <!-- 비상주업체 데이터그리드 -->
@@ -551,6 +553,7 @@
                                             <Button Content="🔄 새로고침" Click="RefreshClosedCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
                                         </StackPanel>
 
                                         <!-- 폐업업체 데이터그리드 -->
@@ -608,6 +611,7 @@
                                             <Button Content="🔄 새로고침" Click="RefreshDepositRefundCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
                                         </StackPanel>
 
                                         <!-- 예치금반환업체 데이터그리드 -->
