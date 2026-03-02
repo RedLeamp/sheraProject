@@ -160,27 +160,42 @@
 
         <!-- 메인 컨텐츠 영역 -->
         <Grid Grid.Column="1" Background="{StaticResource VSDarkBg}">
-            <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0" Padding="10">
+            <!-- 지역 탭 (최상위) -->
+            <TabControl Name="MainLocationTabs" 
+                        Background="{StaticResource VSDarkBg}" 
+                        BorderThickness="0" 
+                        Padding="0"
+                        SelectionChanged="MainLocationTabs_SelectionChanged">
                 <TabControl.Resources>
-                    <!-- TabItem 스타일 -->
+                    <!-- 크롬 스타일 지역 탭 -->
                     <Style TargetType="TabItem">
-                        <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
-                        <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{StaticResource VSTextSecondary}"/>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="20,10"/>
+                        <Setter Property="Padding" Value="25,12"/>
+                        <Setter Property="Margin" Value="0,0,0,0"/>
                         <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="FontWeight" Value="Normal"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="TabItem">
-                                    <Border Name="Border" Background="{TemplateBinding Background}" 
-                                            BorderThickness="0" Margin="2,0" CornerRadius="3,3,0,0">
-                                        <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" 
+                                    <Border Name="Border" 
+                                            Background="{TemplateBinding Background}" 
+                                            BorderThickness="0,0,0,3" 
+                                            BorderBrush="Transparent"
+                                            Margin="0,0,1,0"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter x:Name="ContentSite" 
+                                                        VerticalAlignment="Center" 
                                                         HorizontalAlignment="Center"
-                                                        ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                                        ContentSource="Header"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VSAccent}"/>
+                                            <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource VSAccent}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
                                         </Trigger>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
@@ -191,6 +206,41 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
+
+                <!-- 전체 탭 -->
+                <TabItem Header="전체" Tag="">
+                    <!-- 기능 탭 (하위) -->
+                    <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0" Padding="10">
+                        <TabControl.Resources>
+                            <!-- 기능 TabItem 스타일 -->
+                            <Style TargetType="TabItem">
+                                <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
+                                <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="20,10"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TabItem">
+                                            <Border Name="Border" Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0" Margin="2,0" CornerRadius="3,3,0,0">
+                                                <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" 
+                                                                HorizontalAlignment="Center"
+                                                                ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSAccent}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.Resources>
 
                 <!-- 대시보드 탭 -->
                 <TabItem Header="📊 대시보드">
@@ -534,6 +584,336 @@
                     </ScrollViewer>
                 </TabItem>
 
+                <!-- 남양 탭 -->
+                <TabItem Header="남양" Tag="남양">
+                    <!-- 기능 탭 (하위) -->
+                    <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0" Padding="10">
+                        <TabControl.Resources>
+                            <!-- 기능 TabItem 스타일 -->
+                            <Style TargetType="TabItem">
+                                <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
+                                <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="20,10"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TabItem">
+                                            <Border Name="Border" Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0" Margin="2,0" CornerRadius="3,3,0,0">
+                                                <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" 
+                                                                HorizontalAlignment="Center"
+                                                                ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSAccent}"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.Resources>
+
+                        <!-- 대시보드 탭 -->
+                        <TabItem Header="📊 대시보드">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="20">
+                                    <!-- 남양 통계 카드 -->
+                                    <Grid Margin="0,20,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 총 입금액 -->
+                                        <Border Grid.Column="0" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="💰 총 입금액 (남양)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding TotalPayments, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- 총 지출액 -->
+                                        <Border Grid.Column="1" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="📤 총 지출액 (남양)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding TotalExpenses, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- 순이익 -->
+                                        <Border Grid.Column="2" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                                            <StackPanel>
+                                                <TextBlock Text="📈 순이익 (남양)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding NetProfit, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- 데이터 관리 탭 -->
+                        <TabItem Header="📋 데이터 관리">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="20">
+                                    <Grid Margin="0,0,0,20">
+                                        <StackPanel>
+                                            <TextBlock Text="데이터 관리 (남양)" 
+                                                       Foreground="{StaticResource VSTextPrimary}" 
+                                                       FontSize="20" 
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="남양 지역 업체 및 입금 데이터를 관리합니다" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       FontSize="12"
+                                                       Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 업체 데이터 그리드 (남양 필터링) -->
+                                    <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                                <Button Content="🔄 새로고침" Click="RefreshCompanyData_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- DataGrid -->
+                                            <DataGrid Name="NamyangCompanyDataGrid" 
+                                                      AutoGenerateColumns="False" 
+                                                      Background="{StaticResource VSDarkBg}"
+                                                      RowBackground="{StaticResource VSDarkBg}"
+                                                      AlternatingRowBackground="{StaticResource VSLightBg}"
+                                                      Foreground="{StaticResource VSTextPrimary}"
+                                                      BorderBrush="{StaticResource VSBorder}"
+                                                      GridLinesVisibility="Horizontal"
+                                                      HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                      HeadersVisibility="Column"
+                                                      CanUserAddRows="False"
+                                                      IsReadOnly="True"
+                                                      SelectionMode="Single"
+                                                      SelectionUnit="FullRow">
+                                                <DataGrid.Resources>
+                                                    <Style TargetType="DataGridColumnHeader">
+                                                        <Setter Property="Background" Value="#007ACC"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                        <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    </Style>
+                                                    <Style TargetType="DataGridRow">
+                                                        <Setter Property="Background" Value="{StaticResource VSDarkBg}"/>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter Property="Background" Value="#007ACC"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{StaticResource VSHover}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataGrid.Resources>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                                    <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="150"/>
+                                                    <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                                    <DataGridTextColumn Header="구분" Binding="{Binding Type}" Width="80"/>
+                                                    <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat='yyyy-MM-dd'}" Width="100"/>
+                                                    <DataGridTextColumn Header="월이용료" Binding="{Binding MonthlyFee, StringFormat='₩{0:N0}'}" Width="100"/>
+                                                    <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                    <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                    <DataGridTextColumn Header="마지막입금일" Binding="{Binding LastPaymentDate, StringFormat='yyyy-MM-dd'}" Width="110"/>
+                                                    <DataGridTextColumn Header="총입금액" Binding="{Binding TotalPayments, StringFormat='₩{0:N0}'}" Width="100"/>
+                                                    <DataGridTextColumn Header="입금횟수" Binding="{Binding PaymentCount}" Width="80"/>
+                                                    <DataGridTextColumn Header="입금상태" Binding="{Binding PaymentStatus}" Width="80"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            
+                                            <TextBlock Name="NamyangCompanyStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,10,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+
+                <!-- 향남 탭 -->
+                <TabItem Header="향남" Tag="향남">
+                    <!-- 기능 탭 (하위) -->
+                    <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0" Padding="10">
+                        <TabControl.Resources>
+                            <!-- 기능 TabItem 스타일 -->
+                            <Style TargetType="TabItem">
+                                <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
+                                <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="20,10"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TabItem">
+                                            <Border Name="Border" Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0" Margin="2,0" CornerRadius="3,3,0,0">
+                                                <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" 
+                                                                HorizontalAlignment="Center"
+                                                                ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSAccent}"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.Resources>
+
+                        <!-- 대시보드 탭 -->
+                        <TabItem Header="📊 대시보드">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="20">
+                                    <!-- 향남 통계 카드 -->
+                                    <Grid Margin="0,20,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 총 입금액 -->
+                                        <Border Grid.Column="0" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="💰 총 입금액 (향남)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding TotalPayments, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- 총 지출액 -->
+                                        <Border Grid.Column="1" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="📤 총 지출액 (향남)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding TotalExpenses, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- 순이익 -->
+                                        <Border Grid.Column="2" Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                                            <StackPanel>
+                                                <TextBlock Text="📈 순이익 (향남)" Foreground="{StaticResource VSTextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding NetProfit, StringFormat='₩{0:N0}'}" Foreground="{StaticResource VSTextPrimary}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- 데이터 관리 탭 -->
+                        <TabItem Header="📋 데이터 관리">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="20">
+                                    <Grid Margin="0,0,0,20">
+                                        <StackPanel>
+                                            <TextBlock Text="데이터 관리 (향남)" 
+                                                       Foreground="{StaticResource VSTextPrimary}" 
+                                                       FontSize="20" 
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="향남 지역 업체 및 입금 데이터를 관리합니다" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       FontSize="12"
+                                                       Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 업체 데이터 그리드 (향남 필터링) -->
+                                    <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                                <Button Content="🔄 새로고침" Click="RefreshCompanyData_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                                <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- DataGrid -->
+                                            <DataGrid Name="HyangnamCompanyDataGrid" 
+                                                      AutoGenerateColumns="False" 
+                                                      Background="{StaticResource VSDarkBg}"
+                                                      RowBackground="{StaticResource VSDarkBg}"
+                                                      AlternatingRowBackground="{StaticResource VSLightBg}"
+                                                      Foreground="{StaticResource VSTextPrimary}"
+                                                      BorderBrush="{StaticResource VSBorder}"
+                                                      GridLinesVisibility="Horizontal"
+                                                      HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                      HeadersVisibility="Column"
+                                                      CanUserAddRows="False"
+                                                      IsReadOnly="True"
+                                                      SelectionMode="Single"
+                                                      SelectionUnit="FullRow">
+                                                <DataGrid.Resources>
+                                                    <Style TargetType="DataGridColumnHeader">
+                                                        <Setter Property="Background" Value="#007ACC"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                        <Setter Property="Padding" Value="10,8"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                        <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    </Style>
+                                                    <Style TargetType="DataGridRow">
+                                                        <Setter Property="Background" Value="{StaticResource VSDarkBg}"/>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter Property="Background" Value="#007ACC"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{StaticResource VSHover}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataGrid.Resources>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                                    <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="150"/>
+                                                    <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                                    <DataGridTextColumn Header="구분" Binding="{Binding Type}" Width="80"/>
+                                                    <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat='yyyy-MM-dd'}" Width="100"/>
+                                                    <DataGridTextColumn Header="월이용료" Binding="{Binding MonthlyFee, StringFormat='₩{0:N0}'}" Width="100"/>
+                                                    <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                    <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                    <DataGridTextColumn Header="마지막입금일" Binding="{Binding LastPaymentDate, StringFormat='yyyy-MM-dd'}" Width="110"/>
+                                                    <DataGridTextColumn Header="총입금액" Binding="{Binding TotalPayments, StringFormat='₩{0:N0}'}" Width="100"/>
+                                                    <DataGridTextColumn Header="입금횟수" Binding="{Binding PaymentCount}" Width="80"/>
+                                                    <DataGridTextColumn Header="입금상태" Binding="{Binding PaymentStatus}" Width="80"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            
+                                            <TextBlock Name="HyangnamCompanyStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,10,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+
                 <!-- 지역 관리 탭 -->
                 <TabItem Header="🗺️ 지역 관리">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -561,7 +941,6 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -643,6 +1022,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
+
             </TabControl>
         </Grid>
     </Grid>

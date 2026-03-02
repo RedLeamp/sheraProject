@@ -288,12 +288,28 @@ namespace OfficeManagerWPF
             try
             {
                 var companies = _dbService.GetAllCompanies();
+                
+                // 전체 탭의 DataGrid
                 CompaniesDataGrid.ItemsSource = companies;
-                CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨";
+                CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨 (전체)";
+                
+                // 남양 탭의 DataGrid
+                var namyangCompanies = companies.Where(c => c.Location == "남양").ToList();
+                NamyangCompanyDataGrid.ItemsSource = namyangCompanies;
+                NamyangCompanyStatusText.Text = $"상태: {namyangCompanies.Count}개 업체 로드됨 (남양)";
+                
+                // 향남 탭의 DataGrid
+                var hyangnamCompanies = companies.Where(c => c.Location == "향남").ToList();
+                HyangnamCompanyDataGrid.ItemsSource = hyangnamCompanies;
+                HyangnamCompanyStatusText.Text = $"상태: {hyangnamCompanies.Count}개 업체 로드됨 (향남)";
             }
             catch (Exception ex)
             {
                 CompanyStatusText.Text = $"오류: {ex.Message}";
+                if (NamyangCompanyStatusText != null)
+                    NamyangCompanyStatusText.Text = $"오류: {ex.Message}";
+                if (HyangnamCompanyStatusText != null)
+                    HyangnamCompanyStatusText.Text = $"오류: {ex.Message}";
             }
         }
 
