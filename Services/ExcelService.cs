@@ -313,33 +313,51 @@ namespace OfficeManagerWPF.Services
                         {
                             try
                             {
-                                // 첫 번째 열에서 구분 체크
-                                var firstCell = worksheet.Cell(row, 1).GetString().Trim();
+                                // 전체 행에서 구분 체크 (첫 3개 열 검사)
+                                bool isResidentSection = false;
+                                bool isNonResidentSection = false;
                                 
-                                // "상주업체" 또는 "비상주업체" 구분 감지
-                                if (firstCell.Contains("상주업체"))
+                                for (int col = 1; col <= Math.Min(3, worksheet.LastColumnUsed()?.ColumnNumber() ?? 3); col++)
+                                {
+                                    var cellValue = worksheet.Cell(row, col).GetString().Trim();
+                                    if (cellValue.Contains("상주업체") && !cellValue.Contains("비상주"))
+                                    {
+                                        isResidentSection = true;
+                                        break;
+                                    }
+                                    else if (cellValue.Contains("비상주업체") || cellValue.Contains("비상주 업체"))
+                                    {
+                                        isNonResidentSection = true;
+                                        break;
+                                    }
+                                }
+                                
+                                // "상주업체" 구분 감지
+                                if (isResidentSection)
                                 {
                                     currentSection = "상주업체";
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작");
                                     continue;
                                 }
-                                else if (firstCell.Contains("비상주업체"))
+                                // "비상주업체" 구분 감지
+                                else if (isNonResidentSection)
                                 {
                                     currentSection = "비상주업체";
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작");
                                     continue;
                                 }
                                 
-                                // "총 액" 또는 빈 섹션 체크 - 데이터 입력 종료
-                                if (firstCell.Contains("총") || firstCell.Contains("합계") || string.IsNullOrWhiteSpace(currentSection))
+                                // "총 액" 체크 - 데이터 입력 종료
+                                var firstCell = worksheet.Cell(row, 1).GetString().Trim();
+                                if (firstCell.Contains("총") || firstCell.Contains("합계"))
                                 {
-                                    if (firstCell.Contains("총") || firstCell.Contains("합계"))
-                                    {
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 데이터 입력 종료 (총액 행)");
-                                        break; // 총액 행 이후는 처리하지 않음
-                                    }
-                                    continue;
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 데이터 입력 종료 (총액 행)");
+                                    break; // 총액 행 이후는 처리하지 않음
                                 }
+                                
+                                // 섹션이 설정되지 않았으면 건너뛰기
+                                if (string.IsNullOrWhiteSpace(currentSection))
+                                    continue;
                                 
                                 var rowData = GetRowData(worksheet, row, columnMapping);
                                 
@@ -347,14 +365,10 @@ namespace OfficeManagerWPF.Services
                                 if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                                     continue;
                                 
-                                // 상주업체 또는 비상주업체 섹션에 있는 데이터만 처리
-                                if (string.IsNullOrWhiteSpace(currentSection))
-                                    continue;
-                                
                                 // 구분 필드에 상주/비상주 정보 저장
                                 rowData.CompanyType = currentSection == "상주업체" ? "상주" : "비상주";
                                 
-                                System.Diagnostics.Debug.WriteLine($"행 {row}: {rowData.CompanyName} ({currentSection})");
+                                System.Diagnostics.Debug.WriteLine($"행 {row}: {rowData.CompanyName} ({rowData.CompanyType})");
                                 
                                 // Company 객체 생성
                                 var company = CreateCompanyFromRow(rowData, locationPrefix);
