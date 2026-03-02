@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
@@ -180,14 +181,34 @@ namespace OfficeManagerWPF.Views
                         
                         int addedCompanies = 0;
                         int addedPayments = 0;
+                        int skippedPayments = 0;
                         
-                        // 업체 데이터 추가
+                        // 업체명 → CompanyId 매핑 딕셔너리 생성
+                        var companyIdMap = new Dictionary<string, int>();
+                        
+                        // 1단계: 업체 데이터 추가하고 ID 매핑
                         foreach (var company in companies)
                         {
                             try
                             {
                                 _databaseService.AddCompany(company);
                                 addedCompanies++;
+                                
+                                // 방금 추가한 업체의 ID 가져오기
+                                var allCompanies = _databaseService.GetAllCompanies();
+                                var addedCompany = allCompanies.FirstOrDefault(c => 
+                                    c.Name == company.Name && 
+                                    c.PhoneNumber == company.PhoneNumber);
+                                
+                                if (addedCompany != null)
+                                {
+                                    // 지역 태그 제거한 순수 업체명으로 매핑
+                                    var cleanName = company.Name.Replace($"[{locationPrefix}] ", "");
+                                    if (!companyIdMap.ContainsKey(cleanName))
+                                    {
+                                        companyIdMap[cleanName] = addedCompany.Id;
+                                    }
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -195,17 +216,41 @@ namespace OfficeManagerWPF.Views
                             }
                         }
                         
-                        // 입금 데이터 추가
+                        // 2단계: 입금 데이터에 CompanyId 설정하고 추가
                         foreach (var payment in payments)
                         {
                             try
                             {
-                                _databaseService.AddPayment(payment);
-                                addedPayments++;
+                                // 업체명으로 CompanyId 찾기
+                                if (companyIdMap.ContainsKey(payment.CompanyName))
+                                {
+                                    payment.CompanyId = companyIdMap[payment.CompanyName];
+                                    _databaseService.AddPayment(payment);
+                                    addedPayments++;
+                                }
+                                else
+                                {
+                                    // CompanyId를 찾을 수 없으면 기존 업체 검색
+                                    var existingCompany = _databaseService.GetAllCompanies()
+                                        .FirstOrDefault(c => c.Name.Contains(payment.CompanyName));
+                                    
+                                    if (existingCompany != null)
+                                    {
+                                        payment.CompanyId = existingCompany.Id;
+                                        _databaseService.AddPayment(payment);
+                                        addedPayments++;
+                                    }
+                                    else
+                                    {
+                                        skippedPayments++;
+                                        System.Diagnostics.Debug.WriteLine($"입금 추가 건너뜀 (업체를 찾을 수 없음): {payment.CompanyName}");
+                                    }
+                                }
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"입금 추가 실패: {ex.Message}");
+                                System.Diagnostics.Debug.WriteLine($"입금 추가 실패 ({payment.CompanyName}): {ex.Message}");
+                                skippedPayments++;
                             }
                         }
 
@@ -214,12 +259,18 @@ namespace OfficeManagerWPF.Views
                         
                         UpdateStatus($"임대내역 가져오기 완료: 업체 {addedCompanies}건, 입금 {addedPayments}건 추가됨");
                         
-                        MessageBox.Show(
-                            $"임대내역 Excel 파일 가져오기 완료!\n\n" +
+                        var statusMessage = $"임대내역 Excel 파일 가져오기 완료!\n\n" +
                             $"• 업체 정보: {addedCompanies}건 추가\n" +
-                            $"• 입금 내역: {addedPayments}건 추가\n\n" +
-                            $"총 {companies.Count}개 업체, {payments.Count}개 입금 데이터를 분석했습니다.", 
-                            "완료", 
+                            $"• 입금 내역: {addedPayments}건 추가\n";
+                        
+                        if (skippedPayments > 0)
+                        {
+                            statusMessage += $"• 건너뛴 입금: {skippedPayments}건 (업체 미매칭)\n";
+                        }
+                        
+                        statusMessage += $"\n총 {companies.Count}개 업체, {payments.Count}개 입금 데이터를 분석했습니다.";
+                        
+                        MessageBox.Show(statusMessage, "완료", 
                             MessageBoxButton.OK, 
                             MessageBoxImage.Information);
                     }
