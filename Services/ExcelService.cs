@@ -425,11 +425,26 @@ namespace OfficeManagerWPF.Services
                                 if (string.IsNullOrWhiteSpace(currentSection))
                                     continue;
                                 
+                                // ✅ A열(첫 번째 열) 체크 - "유지업체" 또는 "신규업체"가 있는 행 전체 무시
+                                var firstColumnValue = worksheet.Cell(row, 1).GetString().Trim();
+                                if (firstColumnValue.Contains("유지업체") || firstColumnValue.Contains("신규업체"))
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: A열에 '{firstColumnValue}' 감지 - 전체 행 무시");
+                                    continue;
+                                }
+                                
                                 var rowData = GetRowData(worksheet, row, columnMapping);
                                 
                                 // 업체명이 비어있으면 건너뛰기
                                 if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                                     continue;
+                                
+                                // ✅ 업체명에 "유지업체" 또는 "신규업체"가 포함된 경우 무시
+                                if (rowData.CompanyName.Contains("유지업체") || rowData.CompanyName.Contains("신규업체"))
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 업체명 '{rowData.CompanyName}' - 유지/신규업체 데이터 무시");
+                                    continue;
+                                }
                                 
                                 // 구분 필드에 상태 정보 저장 (상주업체, 비상주업체, 폐업업체, 예치금반환업체)
                                 if (currentSection == "상주업체")
