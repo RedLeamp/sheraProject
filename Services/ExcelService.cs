@@ -454,7 +454,6 @@ namespace OfficeManagerWPF.Services
                                         System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 계속 (데이터 행, 번호={numberCell})");
                                     }
                                 }
-                                }
                                 // "폐업업체" 구분 감지
                                 else if (isClosedSection)
                                 {
