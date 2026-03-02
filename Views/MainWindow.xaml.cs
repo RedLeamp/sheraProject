@@ -188,37 +188,124 @@ namespace OfficeManagerWPF
         }
 
         // 업체 데이터 로드
+        // 4개 카테고리별로 업체 데이터 로드
         private void LoadCompanyData()
         {
             try
             {
+                // 상주업체 로드
+                var residentCompanies = _dbService.GetCompaniesByStatus("상주");
+                ResidentCompaniesDataGrid.ItemsSource = residentCompanies;
+                ResidentStatusText.Text = $"상태: {residentCompanies.Count}개 상주업체 로드됨";
+                
+                // 비상주업체 로드
+                var nonResidentCompanies = _dbService.GetCompaniesByStatus("비상주");
+                NonResidentCompaniesDataGrid.ItemsSource = nonResidentCompanies;
+                NonResidentStatusText.Text = $"상태: {nonResidentCompanies.Count}개 비상주업체 로드됨";
+                
+                // 폐업업체 로드
+                var closedCompanies = _dbService.GetCompaniesByStatus("폐업");
+                ClosedCompaniesDataGrid.ItemsSource = closedCompanies;
+                ClosedStatusText.Text = $"상태: {closedCompanies.Count}개 폐업업체 로드됨";
+                
+                // 예치금반환업체 로드
+                var depositRefundCompanies = _dbService.GetCompaniesByStatus("예치금반환");
+                DepositRefundCompaniesDataGrid.ItemsSource = depositRefundCompanies;
+                DepositRefundStatusText.Text = $"상태: {depositRefundCompanies.Count}개 예치금반환업체 로드됨";
+                
+                // 남양 탭의 DataGrid (전체 탭에 남아있을 경우 대비)
                 var companies = _dbService.GetAllCompanies();
+                if (CompaniesDataGrid != null)
+                {
+                    CompaniesDataGrid.ItemsSource = companies;
+                    CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨 (전체)";
+                }
                 
-                // 전체 탭의 DataGrid
-                CompaniesDataGrid.ItemsSource = companies;
-                CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨 (전체)";
-                
-                // 남양 탭의 DataGrid
                 var namyangCompanies = companies.Where(c => c.Location == "남양").ToList();
-                NamyangCompanyDataGrid.ItemsSource = namyangCompanies;
-                NamyangCompanyStatusText.Text = $"상태: {namyangCompanies.Count}개 업체 로드됨 (남양)";
+                if (NamyangCompanyDataGrid != null)
+                {
+                    NamyangCompanyDataGrid.ItemsSource = namyangCompanies;
+                    NamyangCompanyStatusText.Text = $"상태: {namyangCompanies.Count}개 업체 로드됨 (남양)";
+                }
                 
                 // 향남 탭의 DataGrid
                 var hyangnamCompanies = companies.Where(c => c.Location == "향남").ToList();
-                HyangnamCompanyDataGrid.ItemsSource = hyangnamCompanies;
-                HyangnamCompanyStatusText.Text = $"상태: {hyangnamCompanies.Count}개 업체 로드됨 (향남)";
+                if (HyangnamCompanyDataGrid != null)
+                {
+                    HyangnamCompanyDataGrid.ItemsSource = hyangnamCompanies;
+                    HyangnamCompanyStatusText.Text = $"상태: {hyangnamCompanies.Count}개 업체 로드됨 (향남)";
+                }
             }
             catch (Exception ex)
             {
-                CompanyStatusText.Text = $"오류: {ex.Message}";
-                if (NamyangCompanyStatusText != null)
-                    NamyangCompanyStatusText.Text = $"오류: {ex.Message}";
-                if (HyangnamCompanyStatusText != null)
-                    HyangnamCompanyStatusText.Text = $"오류: {ex.Message}";
+                ResidentStatusText.Text = $"오류: {ex.Message}";
+                NonResidentStatusText.Text = $"오류: {ex.Message}";
+                ClosedStatusText.Text = $"오류: {ex.Message}";
+                DepositRefundStatusText.Text = $"오류: {ex.Message}";
             }
         }
 
-        // 업체 데이터 새로고침
+        // 상주업체 데이터 새로고침
+        private void RefreshResidentCompanies_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var residentCompanies = _dbService.GetCompaniesByStatus("상주");
+                ResidentCompaniesDataGrid.ItemsSource = residentCompanies;
+                ResidentStatusText.Text = $"상태: {residentCompanies.Count}개 상주업체 로드됨";
+            }
+            catch (Exception ex)
+            {
+                ResidentStatusText.Text = $"오류: {ex.Message}";
+            }
+        }
+
+        // 비상주업체 데이터 새로고침
+        private void RefreshNonResidentCompanies_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var nonResidentCompanies = _dbService.GetCompaniesByStatus("비상주");
+                NonResidentCompaniesDataGrid.ItemsSource = nonResidentCompanies;
+                NonResidentStatusText.Text = $"상태: {nonResidentCompanies.Count}개 비상주업체 로드됨";
+            }
+            catch (Exception ex)
+            {
+                NonResidentStatusText.Text = $"오류: {ex.Message}";
+            }
+        }
+
+        // 폐업업체 데이터 새로고침
+        private void RefreshClosedCompanies_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var closedCompanies = _dbService.GetCompaniesByStatus("폐업");
+                ClosedCompaniesDataGrid.ItemsSource = closedCompanies;
+                ClosedStatusText.Text = $"상태: {closedCompanies.Count}개 폐업업체 로드됨";
+            }
+            catch (Exception ex)
+            {
+                ClosedStatusText.Text = $"오류: {ex.Message}";
+            }
+        }
+
+        // 예치금반환업체 데이터 새로고침
+        private void RefreshDepositRefundCompanies_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var depositRefundCompanies = _dbService.GetCompaniesByStatus("예치금반환");
+                DepositRefundCompaniesDataGrid.ItemsSource = depositRefundCompanies;
+                DepositRefundStatusText.Text = $"상태: {depositRefundCompanies.Count}개 예치금반환업체 로드됨";
+            }
+            catch (Exception ex)
+            {
+                DepositRefundStatusText.Text = $"오류: {ex.Message}";
+            }
+        }
+
+        // 업체 데이터 새로고침 (기존 전체 탭용 - 호환성 유지)
         private void RefreshCompanyData_Click(object sender, RoutedEventArgs e)
         {
             LoadCompanyData();

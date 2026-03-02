@@ -316,15 +316,46 @@ namespace OfficeManagerWPF.Services
                                 // 전체 행에서 구분 체크 (첫 3개 열 검사)
                                 bool isResidentSection = false;
                                 bool isNonResidentSection = false;
+                                bool isClosedSection = false;
+                                bool isDepositRefundSection = false;
+                                bool isMaintenanceSection = false; // 유지업체 - 무시
+                                bool isNewSection = false; // 신규업체 - 무시
                                 
                                 for (int col = 1; col <= Math.Min(3, worksheet.LastColumnUsed()?.ColumnNumber() ?? 3); col++)
                                 {
                                     var cellValue = worksheet.Cell(row, col).GetString().Trim();
-                                    if (cellValue.Contains("상주업체") && !cellValue.Contains("비상주"))
+                                    
+                                    // 유지업체/신규업체 체크 (무시할 섹션)
+                                    if (cellValue.Contains("유지업체") || cellValue.Contains("유지 업체"))
+                                    {
+                                        isMaintenanceSection = true;
+                                        break;
+                                    }
+                                    else if (cellValue.Contains("신규업체") || cellValue.Contains("신규 업체"))
+                                    {
+                                        isNewSection = true;
+                                        break;
+                                    }
+                                    // 폐업업체
+                                    else if (cellValue.Contains("폐업업체") || cellValue.Contains("폐업 업체"))
+                                    {
+                                        isClosedSection = true;
+                                        break;
+                                    }
+                                    // 예치금반환업체
+                                    else if (cellValue.Contains("예치금반환업체") || cellValue.Contains("예치금반환 업체") || 
+                                             cellValue.Contains("예치금 반환업체") || cellValue.Contains("예치금 반환 업체"))
+                                    {
+                                        isDepositRefundSection = true;
+                                        break;
+                                    }
+                                    // 상주업체
+                                    else if (cellValue.Contains("상주업체") && !cellValue.Contains("비상주"))
                                     {
                                         isResidentSection = true;
                                         break;
                                     }
+                                    // 비상주업체
                                     else if (cellValue.Contains("비상주업체") || cellValue.Contains("비상주 업체"))
                                     {
                                         isNonResidentSection = true;
@@ -332,8 +363,21 @@ namespace OfficeManagerWPF.Services
                                     }
                                 }
                                 
+                                // 유지업체/신규업체 섹션 - 무시하고 다음 섹션 대기
+                                if (isMaintenanceSection)
+                                {
+                                    currentSection = ""; // 섹션 초기화
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 유지업체 섹션 - 무시");
+                                    continue;
+                                }
+                                else if (isNewSection)
+                                {
+                                    currentSection = ""; // 섹션 초기화
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 신규업체 섹션 - 무시");
+                                    continue;
+                                }
                                 // "상주업체" 구분 감지
-                                if (isResidentSection)
+                                else if (isResidentSection)
                                 {
                                     currentSection = "상주업체";
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작");
@@ -344,6 +388,20 @@ namespace OfficeManagerWPF.Services
                                 {
                                     currentSection = "비상주업체";
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작");
+                                    continue;
+                                }
+                                // "폐업업체" 구분 감지
+                                else if (isClosedSection)
+                                {
+                                    currentSection = "폐업업체";
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 시작");
+                                    continue;
+                                }
+                                // "예치금반환업체" 구분 감지
+                                else if (isDepositRefundSection)
+                                {
+                                    currentSection = "예치금반환업체";
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 시작");
                                     continue;
                                 }
                                 
@@ -365,8 +423,23 @@ namespace OfficeManagerWPF.Services
                                 if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                                     continue;
                                 
-                                // 구분 필드에 상주/비상주 정보 저장
-                                rowData.CompanyType = currentSection == "상주업체" ? "상주" : "비상주";
+                                // 구분 필드에 상태 정보 저장 (상주업체, 비상주업체, 폐업업체, 예치금반환업체)
+                                if (currentSection == "상주업체")
+                                {
+                                    rowData.CompanyType = "상주";
+                                }
+                                else if (currentSection == "비상주업체")
+                                {
+                                    rowData.CompanyType = "비상주";
+                                }
+                                else if (currentSection == "폐업업체")
+                                {
+                                    rowData.CompanyType = "폐업";
+                                }
+                                else if (currentSection == "예치금반환업체")
+                                {
+                                    rowData.CompanyType = "예치금반환";
+                                }
                                 
                                 System.Diagnostics.Debug.WriteLine($"행 {row}: {rowData.CompanyName} ({rowData.CompanyType})");
                                 
@@ -524,21 +597,42 @@ namespace OfficeManagerWPF.Services
             if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                 return null;
             
-            // Type 결정: 상주/비상주 (Excel의 "구분" 컬럼에서 가져옴)
+            // Type 결정: 상주/비상주/폐업/예치금반환 (Excel의 "구분" 컬럼에서 가져옴)
             string companyType = "상주"; // 기본값
+            string companyStatus = "상주"; // 기본 상태
+            
             if (!string.IsNullOrWhiteSpace(rowData.CompanyType))
             {
                 string typeStr = rowData.CompanyType.Trim();
-                if (typeStr.Contains("비상주") || typeStr.Equals("비입"))
+                
+                // 4가지 카테고리 분류
+                if (typeStr.Contains("폐업"))
+                {
+                    companyType = "폐업";
+                    companyStatus = "폐업";
+                }
+                else if (typeStr.Contains("예치금"))
+                {
+                    companyType = "예치금반환";
+                    companyStatus = "예치금반환";
+                }
+                else if (typeStr.Contains("비상주") || typeStr.Equals("비입"))
+                {
                     companyType = "비상주";
+                    companyStatus = "비상주";
+                }
                 else if (typeStr.Contains("상주") || typeStr.Equals("법입"))
+                {
                     companyType = "상주";
+                    companyStatus = "상주";
+                }
             }
             
             return new Company
             {
                 Name = string.IsNullOrWhiteSpace(locationPrefix) ? rowData.CompanyName : $"[{locationPrefix}] {rowData.CompanyName}",
                 Type = companyType,
+                Status = companyStatus, // 추가: 상태 설정
                 ContractDate = rowData.ContractDate ?? DateTime.Now,
                 MonthlyFee = rowData.MonthlyFee,
                 ContactPerson = rowData.ContactPerson,
@@ -546,7 +640,7 @@ namespace OfficeManagerWPF.Services
                 Email = rowData.Email,
                 Notes = rowData.Notes,
                 Location = locationPrefix,
-                IsActive = true
+                IsActive = companyStatus != "폐업" // 폐업업체는 비활성화
             };
         }
         

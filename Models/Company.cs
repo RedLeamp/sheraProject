@@ -7,7 +7,8 @@ namespace OfficeManagerWPF.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; } // "상주" or "비상주"
+        public string Type { get; set; } // "상주" or "비상주" (기존 필드 유지)
+        public string Status { get; set; } // "상주업체", "비상주업체", "폐업업체", "예치금반환업체"
         public DateTime ContractDate { get; set; }
         public decimal MonthlyFee { get; set; }
         public string ContactPerson { get; set; }
@@ -27,6 +28,7 @@ namespace OfficeManagerWPF.Models
         public Company()
         {
             IsActive = true;
+            Status = "상주업체"; // 기본값
         }
     }
 }

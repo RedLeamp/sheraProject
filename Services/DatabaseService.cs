@@ -115,6 +115,16 @@ namespace OfficeManagerWPF.Services
                 {
                     // 컬럼이 이미 있으면 무시
                 }
+                
+                // Status 컬럼 추가 (기존 DB 업그레이드)
+                try
+                {
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN Status TEXT DEFAULT '상주업체'", connection);
+                }
+                catch
+                {
+                    // 컬럼이 이미 있으면 무시
+                }
             }
         }
 
@@ -203,7 +213,68 @@ namespace OfficeManagerWPF.Services
                         }
                         catch { company.PaymentStatus = "정상"; }
 
+                        // Status 필드 (없을 수 있음)
+                        try
+                        {
+                            int statusOrdinal = reader.GetOrdinal("Status");
+                            company.Status = reader.IsDBNull(statusOrdinal) ? 
+                                "상주업체" : reader.GetString(statusOrdinal);
+                        }
+                        catch { company.Status = "상주업체"; }
+
                         companies.Add(company);
+                    }
+                }
+            }
+            return companies;
+        }
+
+        // 상태별로 업체 조회
+        public List<Company> GetCompaniesByStatus(string status)
+        {
+            var companies = new List<Company>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT * FROM Companies WHERE Status = @Status";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Status", status);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var company = new Company
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Type = reader.GetString(reader.GetOrdinal("Type")),
+                                ContractDate = DateTime.Parse(reader.GetString(reader.GetOrdinal("ContractDate"))),
+                                MonthlyFee = reader.GetDecimal(reader.GetOrdinal("MonthlyFee")),
+                                IsActive = reader.GetInt32(reader.GetOrdinal("IsActive")) == 1
+                            };
+
+                            // Optional 필드 처리
+                            int contactPersonOrdinal = reader.GetOrdinal("ContactPerson");
+                            company.ContactPerson = reader.IsDBNull(contactPersonOrdinal) ? null : reader.GetString(contactPersonOrdinal);
+
+                            int phoneOrdinal = reader.GetOrdinal("PhoneNumber");
+                            company.PhoneNumber = reader.IsDBNull(phoneOrdinal) ? null : reader.GetString(phoneOrdinal);
+
+                            int emailOrdinal = reader.GetOrdinal("Email");
+                            company.Email = reader.IsDBNull(emailOrdinal) ? null : reader.GetString(emailOrdinal);
+
+                            int notesOrdinal = reader.GetOrdinal("Notes");
+                            company.Notes = reader.IsDBNull(notesOrdinal) ? null : reader.GetString(notesOrdinal);
+
+                            int locationOrdinal = reader.GetOrdinal("Location");
+                            company.Location = reader.IsDBNull(locationOrdinal) ? null : reader.GetString(locationOrdinal);
+
+                            int statusOrdinal = reader.GetOrdinal("Status");
+                            company.Status = reader.IsDBNull(statusOrdinal) ? "상주" : reader.GetString(statusOrdinal);
+
+                            companies.Add(company);
+                        }
                     }
                 }
             }
@@ -217,10 +288,10 @@ namespace OfficeManagerWPF.Services
                 connection.Open();
                 string query = @"INSERT INTO Companies (Name, Type, ContractDate, MonthlyFee, ContactPerson, 
                                 PhoneNumber, Email, Notes, Location, IsActive, LastPaymentDate, TotalPayments, 
-                                UnpaidAmount, PaymentCount, PaymentStatus) 
+                                UnpaidAmount, PaymentCount, PaymentStatus, Status) 
                                 VALUES (@Name, @Type, @ContractDate, @MonthlyFee, @ContactPerson, 
                                 @PhoneNumber, @Email, @Notes, @Location, @IsActive, @LastPaymentDate, 
-                                @TotalPayments, @UnpaidAmount, @PaymentCount, @PaymentStatus)";
+                                @TotalPayments, @UnpaidAmount, @PaymentCount, @PaymentStatus, @Status)";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     AddCompanyParameters(command, company);
@@ -238,7 +309,8 @@ namespace OfficeManagerWPF.Services
                                 MonthlyFee=@MonthlyFee, ContactPerson=@ContactPerson, PhoneNumber=@PhoneNumber, 
                                 Email=@Email, Notes=@Notes, Location=@Location, IsActive=@IsActive, 
                                 LastPaymentDate=@LastPaymentDate, TotalPayments=@TotalPayments, 
-                                UnpaidAmount=@UnpaidAmount, PaymentCount=@PaymentCount, PaymentStatus=@PaymentStatus 
+                                UnpaidAmount=@UnpaidAmount, PaymentCount=@PaymentCount, PaymentStatus=@PaymentStatus, 
+                                Status=@Status 
                                 WHERE Id=@Id";
                 using (var command = new SQLiteCommand(query, connection))
                 {
@@ -410,6 +482,8 @@ namespace OfficeManagerWPF.Services
             command.Parameters.AddWithValue("@UnpaidAmount", company.UnpaidAmount);
             command.Parameters.AddWithValue("@PaymentCount", company.PaymentCount);
             command.Parameters.AddWithValue("@PaymentStatus", (object)company.PaymentStatus ?? "정상");
+            command.Parameters.AddWithValue("@Status", (object)company.Status ?? "상주");
+            command.Parameters.AddWithValue("@Status", (object)company.Status ?? "상주업체");
         }
 
         private void AddPaymentParameters(SQLiteCommand command, Payment payment)

@@ -420,25 +420,24 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- 서브 탭 -->
+                            <!-- 서브 탭 (4개 카테고리) -->
                             <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0">
-                                <!-- 업체+입금 데이터 -->
-                                <TabItem Header="업체 및 입금">
+                                <!-- 상주업체 탭 -->
+                                <TabItem Header="상주업체">
                                     <StackPanel Margin="15">
-                                        <TextBlock Text="업체 데이터 (입금 내역 통합)" 
+                                        <TextBlock Text="상주업체 (현재 운영 중 - 상주)" 
                                                    Foreground="{StaticResource VSTextPrimary}" 
                                                    FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
                                         
                                         <!-- 버튼 영역 -->
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                            <Button Content="🔄 새로고침" Click="RefreshCompanyData_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🔄 새로고침" Click="RefreshResidentCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
                                             <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
-                                            <Button Content="🗑️ 데이터 초기화" Click="ClearCompanyData_Click" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
                                         </StackPanel>
 
-                                        <!-- 업체 데이터그리드 -->
-                                        <DataGrid Name="CompaniesDataGrid" 
+                                        <!-- 상주업체 데이터그리드 -->
+                                        <DataGrid Name="ResidentCompaniesDataGrid" 
                                                   AutoGenerateColumns="False"
                                                   CanUserAddRows="False"
                                                   CanUserDeleteRows="False"
@@ -452,6 +451,177 @@
                                                   BorderThickness="1"
                                                   GridLinesVisibility="Horizontal"
                                                   HorizontalGridLinesBrush="{StaticResource VSBorder}"
+
+                                <!-- 비상주업체 탭 -->
+                                <TabItem Header="비상주업체">
+                                    <StackPanel Margin="15">
+                                        <TextBlock Text="비상주업체 (현재 운영 중 - 비상주)" 
+                                                   Foreground="{StaticResource VSTextPrimary}" 
+                                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <!-- 버튼 영역 -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="🔄 새로고침" Click="RefreshNonResidentCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                        </StackPanel>
+
+                                        <!-- 비상주업체 데이터그리드 -->
+                                        <DataGrid Name="NonResidentCompaniesDataGrid" 
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  IsReadOnly="True"
+                                                  SelectionMode="Single"
+                                                  Background="{StaticResource VSDarkBg}"
+                                                  Foreground="{StaticResource VSTextPrimary}"
+                                                  RowBackground="{StaticResource VSLightBg}"
+                                                  AlternatingRowBackground="#252526"
+                                                  BorderBrush="{StaticResource VSBorder}"
+                                                  BorderThickness="1"
+                                                  GridLinesVisibility="Horizontal"
+                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                  Height="400">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="{StaticResource VSSelection}"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Padding" Value="10,8"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                                <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="*"/>
+                                                <DataGridTextColumn Header="구분" Binding="{Binding Status}" Width="100"/>
+                                                <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                                                <DataGridTextColumn Header="월임대료" Binding="{Binding MonthlyFee, StringFormat=N0}" Width="100"/>
+                                                <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        
+                                        <TextBlock Name="NonResidentStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
+
+                                <!-- 폐업업체 탭 -->
+                                <TabItem Header="폐업업체">
+                                    <StackPanel Margin="15">
+                                        <TextBlock Text="폐업업체 (계약 종료)" 
+                                                   Foreground="{StaticResource VSTextPrimary}" 
+                                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <!-- 버튼 영역 -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="🔄 새로고침" Click="RefreshClosedCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                        </StackPanel>
+
+                                        <!-- 폐업업체 데이터그리드 -->
+                                        <DataGrid Name="ClosedCompaniesDataGrid" 
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  IsReadOnly="True"
+                                                  SelectionMode="Single"
+                                                  Background="{StaticResource VSDarkBg}"
+                                                  Foreground="{StaticResource VSTextPrimary}"
+                                                  RowBackground="{StaticResource VSLightBg}"
+                                                  AlternatingRowBackground="#252526"
+                                                  BorderBrush="{StaticResource VSBorder}"
+                                                  BorderThickness="1"
+                                                  GridLinesVisibility="Horizontal"
+                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                  Height="400">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="{StaticResource VSSelection}"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Padding" Value="10,8"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                                <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="*"/>
+                                                <DataGridTextColumn Header="구분" Binding="{Binding Status}" Width="100"/>
+                                                <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                                                <DataGridTextColumn Header="월임대료" Binding="{Binding MonthlyFee, StringFormat=N0}" Width="100"/>
+                                                <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        
+                                        <TextBlock Name="ClosedStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
+
+                                <!-- 예치금반환업체 탭 -->
+                                <TabItem Header="예치금반환업체">
+                                    <StackPanel Margin="15">
+                                        <TextBlock Text="예치금반환업체 (반환 대상)" 
+                                                   Foreground="{StaticResource VSTextPrimary}" 
+                                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <!-- 버튼 영역 -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="🔄 새로고침" Click="RefreshDepositRefundCompanies_Click" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📥 임대내역 가져오기" Click="ImportRentalRecords_Click" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                        </StackPanel>
+
+                                        <!-- 예치금반환업체 데이터그리드 -->
+                                        <DataGrid Name="DepositRefundCompaniesDataGrid" 
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  IsReadOnly="True"
+                                                  SelectionMode="Single"
+                                                  Background="{StaticResource VSDarkBg}"
+                                                  Foreground="{StaticResource VSTextPrimary}"
+                                                  RowBackground="{StaticResource VSLightBg}"
+                                                  AlternatingRowBackground="#252526"
+                                                  BorderBrush="{StaticResource VSBorder}"
+                                                  BorderThickness="1"
+                                                  GridLinesVisibility="Horizontal"
+                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                  Height="400">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="{StaticResource VSSelection}"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Padding" Value="10,8"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                                <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="*"/>
+                                                <DataGridTextColumn Header="구분" Binding="{Binding Status}" Width="100"/>
+                                                <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                                                <DataGridTextColumn Header="월임대료" Binding="{Binding MonthlyFee, StringFormat=N0}" Width="100"/>
+                                                <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        
+                                        <TextBlock Name="DepositRefundStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
                                                   HeadersVisibility="Column"
                                                   Height="400">
                                             <DataGrid.ColumnHeaderStyle>
