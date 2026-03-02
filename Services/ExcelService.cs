@@ -416,30 +416,82 @@ namespace OfficeManagerWPF.Services
                                 // "상주업체" 구분 감지
                                 else if (isResidentSection)
                                 {
-                                    currentSection = "상주업체";
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작");
-                                    continue;
+                                    // 번호 열(B열, 2번 열) 확인 - 실제 데이터 행인지 섹션 제목 행인지 구분
+                                    var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
+                                    bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
+                                    
+                                    if (isHeaderRow)
+                                    {
+                                        // 섹션 제목 행 - 건너뛰기
+                                        currentSection = "상주업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작 (제목 행)");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        // 실제 데이터 행 - 섹션은 설정하되 continue 하지 않음
+                                        currentSection = "상주업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                        // continue 하지 않고 아래로 진행하여 데이터 처리
+                                    }
                                 }
                                 // "비상주업체" 구분 감지
                                 else if (isNonResidentSection)
                                 {
-                                    currentSection = "비상주업체";
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작");
-                                    continue;
+                                    // 번호 열(B열, 2번 열) 확인
+                                    var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
+                                    bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
+                                    
+                                    if (isHeaderRow)
+                                    {
+                                        currentSection = "비상주업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작 (제목 행)");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        currentSection = "비상주업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                    }
+                                }
                                 }
                                 // "폐업업체" 구분 감지
                                 else if (isClosedSection)
                                 {
-                                    currentSection = "폐업업체";
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 시작");
-                                    continue;
+                                    // 번호 열(B열, 2번 열) 확인
+                                    var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
+                                    bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
+                                    
+                                    if (isHeaderRow)
+                                    {
+                                        currentSection = "폐업업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 시작 (제목 행)");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        currentSection = "폐업업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                    }
                                 }
                                 // "예치금반환업체" 구분 감지
                                 else if (isDepositRefundSection)
                                 {
-                                    currentSection = "예치금반환업체";
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 시작");
-                                    continue;
+                                    // 번호 열(B열, 2번 열) 확인
+                                    var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
+                                    bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
+                                    
+                                    if (isHeaderRow)
+                                    {
+                                        currentSection = "예치금반환업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 시작 (제목 행)");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        currentSection = "예치금반환업체";
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                    }
                                 }
                                 
                                 // "총 액" 체크 - 데이터 입력 종료 또는 다음 섹션으로
