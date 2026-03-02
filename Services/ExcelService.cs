@@ -363,17 +363,17 @@ namespace OfficeManagerWPF.Services
                                     }
                                 }
                                 
-                                // 유지업체/신규업체 섹션 - 무시하고 다음 섹션 대기
+                                // 유지업체/신규업체 섹션 - 무시 섹션으로 설정
                                 if (isMaintenanceSection)
                                 {
-                                    currentSection = ""; // 섹션 초기화
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 유지업체 섹션 - 무시");
+                                    currentSection = "IGNORE_MAINTENANCE"; // 무시 섹션으로 명시적 표시
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 유지업체 섹션 - 무시 시작");
                                     continue;
                                 }
                                 else if (isNewSection)
                                 {
-                                    currentSection = ""; // 섹션 초기화
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 신규업체 섹션 - 무시");
+                                    currentSection = "IGNORE_NEW"; // 무시 섹션으로 명시적 표시
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 신규업체 섹션 - 무시 시작");
                                     continue;
                                 }
                                 // "상주업체" 구분 감지
@@ -405,12 +405,20 @@ namespace OfficeManagerWPF.Services
                                     continue;
                                 }
                                 
-                                // "총 액" 체크 - 데이터 입력 종료
+                                // "총 액" 체크 - 데이터 입력 종료 또는 다음 섹션으로
                                 var firstCell = worksheet.Cell(row, 1).GetString().Trim();
                                 if (firstCell.Contains("총") || firstCell.Contains("합계"))
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 데이터 입력 종료 (총액 행)");
-                                    break; // 총액 행 이후는 처리하지 않음
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 총액 행 감지 - 현재 섹션 종료");
+                                    currentSection = ""; // 섹션 종료, 다음 섹션 대기
+                                    continue;
+                                }
+                                
+                                // 무시 섹션(유지업체/신규업체)에 있는 데이터는 건너뛰기
+                                if (currentSection == "IGNORE_MAINTENANCE" || currentSection == "IGNORE_NEW")
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 무시 섹션 내 데이터 - 건너뛰기");
+                                    continue;
                                 }
                                 
                                 // 섹션이 설정되지 않았으면 건너뛰기
