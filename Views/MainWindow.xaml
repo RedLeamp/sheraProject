@@ -401,6 +401,8 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
+                    </TabControl>
+                </TabItem>
 
                 <!-- 데이터 관리 탭 -->
                 <TabItem Header="📋 데이터 관리">
@@ -450,7 +452,34 @@
                                                   BorderBrush="{StaticResource VSBorder}"
                                                   BorderThickness="1"
                                                   GridLinesVisibility="Horizontal"
-                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}">
+                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                  Height="400">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="{StaticResource VSSelection}"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Padding" Value="10,8"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource VSBorder}"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                                <DataGridTextColumn Header="업체명" Binding="{Binding Name}" Width="*"/>
+                                                <DataGridTextColumn Header="구분" Binding="{Binding Status}" Width="100"/>
+                                                <DataGridTextColumn Header="계약일" Binding="{Binding ContractDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                                                <DataGridTextColumn Header="월임대료" Binding="{Binding MonthlyFee, StringFormat=N0}" Width="100"/>
+                                                <DataGridTextColumn Header="담당자" Binding="{Binding ContactPerson}" Width="100"/>
+                                                <DataGridTextColumn Header="연락처" Binding="{Binding PhoneNumber}" Width="120"/>
+                                                <DataGridTextColumn Header="지역" Binding="{Binding Location}" Width="80"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        
+                                        <TextBlock Name="ResidentStatusText" Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
 
                                                     <!-- 비상주업체 탭 -->
                                 <TabItem Header="비상주업체">
