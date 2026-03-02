@@ -86,30 +86,10 @@
                 <!-- 메뉴 항목 -->
                 <StackPanel Margin="0,10,0,0">
                     <!-- 대시보드 -->
-                    <Button Style="{StaticResource VSButton}" 
-                            Padding="20,12"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Background="#2D2D30">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="대시보드" FontSize="13"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
-
-                    <!-- 데이터 관리 -->
-                    <Button Style="{StaticResource VSButton}" 
-                            Command="{Binding OpenDataGridCommand}"
-                            Padding="20,12"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="데이터 관리" FontSize="13"/>
-                        </StackPanel>
-                    </Button>
+                    <TextBlock Text="📋 메인 메뉴" 
+                               Foreground="{StaticResource VSTextSecondary}" 
+                               FontSize="11" 
+                               Margin="20,0,0,10"/>
 
                     <Separator Background="{StaticResource VSBorder}" Margin="15,5"/>
 
@@ -180,24 +160,58 @@
 
         <!-- 메인 컨텐츠 영역 -->
         <Grid Grid.Column="1" Background="{StaticResource VSDarkBg}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="30">
-                    <!-- 헤더 -->
-                    <Grid Margin="0,0,0,25">
-                        <StackPanel>
-                            <TextBlock Text="DASHBOARD" 
-                                       Foreground="{StaticResource VSTextPrimary}" 
-                                       FontSize="24" 
-                                       FontWeight="Light"/>
-                            <TextBlock Text="{Binding SelectedPeriod, StringFormat={}{0}}" 
-                                       Foreground="{StaticResource VSTextSecondary}" 
-                                       FontSize="13"
-                                       Margin="0,5,0,0"/>
-                        </StackPanel>
-                    </Grid>
+            <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0" Padding="10">
+                <TabControl.Resources>
+                    <!-- TabItem 스타일 -->
+                    <Style TargetType="TabItem">
+                        <Setter Property="Background" Value="{StaticResource VSLightBg}"/>
+                        <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="20,10"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="Border" Background="{TemplateBinding Background}" 
+                                            BorderThickness="0" Margin="2,0" CornerRadius="3,3,0,0">
+                                        <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" 
+                                                        HorizontalAlignment="Center"
+                                                        ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VSAccent}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
 
-                    <!-- 통계 카드 그리드 -->
-                    <Grid Margin="0,0,0,25">
+                <!-- 대시보드 탭 -->
+                <TabItem Header="📊 대시보드">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="30">
+                            <!-- 헤더 -->
+                            <Grid Margin="0,0,0,25">
+                                <StackPanel>
+                                    <TextBlock Text="DASHBOARD" 
+                                               Foreground="{StaticResource VSTextPrimary}" 
+                                               FontSize="24" 
+                                               FontWeight="Light"/>
+                                    <TextBlock Text="{Binding SelectedPeriod, StringFormat={}{0}}" 
+                                               Foreground="{StaticResource VSTextSecondary}" 
+                                               FontSize="13"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- 통계 카드 그리드 -->
+                            <Grid Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="15"/>
@@ -309,33 +323,208 @@
                         </Border>
                     </Grid>
 
-                    <!-- 안내 텍스트 -->
-                    <Border Background="{StaticResource VSLightBg}" 
-                            BorderBrush="{StaticResource VSAccent}" 
-                            BorderThickness="2,0,0,0" 
-                            Padding="15"
-                            Margin="0,10,0,0">
-                        <StackPanel>
-                            <TextBlock Text="💡 시스템 안내" 
-                                       Foreground="{StaticResource VSTextPrimary}" 
-                                       FontSize="13"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="• 미수금 알림: 월초(1-5일), 중순(13-17일), 월말(25-30일) 자동 발송" 
-                                       Foreground="{StaticResource VSTextSecondary}" 
-                                       FontSize="12"
-                                       Margin="0,8,0,3"/>
-                            <TextBlock Text="• 월세 납부 알림: 7일 전, 3일 전, 당일 자동 발송 (SMS + 이메일)" 
-                                       Foreground="{StaticResource VSTextSecondary}" 
-                                       FontSize="12"
-                                       Margin="0,0,0,3"/>
-                            <TextBlock Text="• 알림 설정 메뉴에서 SMS/이메일 설정을 완료해주세요" 
-                                       Foreground="#DCDCAA" 
-                                       FontSize="12"
-                                       Margin="0,0,0,0"/>
+                            <!-- 안내 텍스트 -->
+                            <Border Background="{StaticResource VSLightBg}" 
+                                    BorderBrush="{StaticResource VSAccent}" 
+                                    BorderThickness="2,0,0,0" 
+                                    Padding="15"
+                                    Margin="0,10,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="💡 시스템 안내" 
+                                               Foreground="{StaticResource VSTextPrimary}" 
+                                               FontSize="13"
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="• 미수금 알림: 월초(1-5일), 중순(13-17일), 월말(25-30일) 자동 발송" 
+                                               Foreground="{StaticResource VSTextSecondary}" 
+                                               FontSize="12"
+                                               Margin="0,8,0,3"/>
+                                    <TextBlock Text="• 월세 납부 알림: 7일 전, 3일 전, 당일 자동 발송 (SMS + 이메일)" 
+                                               Foreground="{StaticResource VSTextSecondary}" 
+                                               FontSize="12"
+                                               Margin="0,0,0,3"/>
+                                    <TextBlock Text="• 알림 설정 메뉴에서 SMS/이메일 설정을 완료해주세요" 
+                                               Foreground="#DCDCAA" 
+                                               FontSize="12"
+                                               Margin="0,0,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- 데이터 관리 탭 -->
+                <TabItem Header="📋 데이터 관리">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            <!-- 헤더 -->
+                            <Grid Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="데이터 관리" 
+                                               Foreground="{StaticResource VSTextPrimary}" 
+                                               FontSize="20" 
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="업체, 입금, 지출 데이터를 관리합니다" 
+                                               Foreground="{StaticResource VSTextSecondary}" 
+                                               FontSize="12"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- 서브 탭 -->
+                            <TabControl Background="{StaticResource VSDarkBg}" BorderThickness="0">
+                                <!-- 업체+입금 데이터 -->
+                                <TabItem Header="업체 및 입금">
+                                    <StackPanel Margin="15">
+                                        <TextBlock Text="업체 데이터 (입금 내역 통합)" 
+                                                   Foreground="{StaticResource VSTextPrimary}" 
+                                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <!-- 버튼 영역 -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="🔄 새로고침" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📥 임대내역 가져오기" Style="{StaticResource VSAccentButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- 데이터그리드 플레이스홀더 -->
+                                        <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Height="400">
+                                            <TextBlock Text="업체 및 입금 데이터가 여기에 표시됩니다" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        
+                                        <TextBlock Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
+
+                                <!-- 지출 데이터 -->
+                                <TabItem Header="지출">
+                                    <StackPanel Margin="15">
+                                        <TextBlock Text="지출 데이터" 
+                                                   Foreground="{StaticResource VSTextPrimary}" 
+                                                   FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <!-- 버튼 영역 -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="🔄 새로고침" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📥 엑셀 가져오기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="📤 엑셀 내보내기" Style="{StaticResource VSButton}" Margin="0,0,5,0" Padding="12,6"/>
+                                            <Button Content="🗑️ 데이터 초기화" Background="#DC3545" Foreground="White" Padding="12,6" Margin="10,0,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- 데이터그리드 플레이스홀더 -->
+                                        <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Height="400">
+                                            <TextBlock Text="지출 데이터가 여기에 표시됩니다" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        
+                                        <TextBlock Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </TabItem>
+                            </TabControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- 지역 관리 탭 -->
+                <TabItem Header="🗺️ 지역 관리">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            <!-- 헤더 -->
+                            <Grid Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="지역 관리" 
+                                               Foreground="{StaticResource VSTextPrimary}" 
+                                               FontSize="20" 
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="지역을 추가하고 선택하여 관리합니다" 
+                                               Foreground="{StaticResource VSTextSecondary}" 
+                                               FontSize="12"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- 지역 추가 영역 -->
+                            <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="✨ 새 지역 추가" Foreground="{StaticResource VSTextPrimary}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="10"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- 지역명 -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="지역명:" Foreground="{StaticResource VSTextSecondary}" VerticalAlignment="Center" Margin="0,0,15,0" Width="80"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Name="LocationNameInput" Background="{StaticResource VSDarkBg}" Foreground="{StaticResource VSTextPrimary}" BorderBrush="{StaticResource VSBorder}" Padding="8"/>
+
+                                        <!-- 주소 -->
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="주소:" Foreground="{StaticResource VSTextSecondary}" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" Name="LocationAddressInput" Background="{StaticResource VSDarkBg}" Foreground="{StaticResource VSTextPrimary}" BorderBrush="{StaticResource VSBorder}" Padding="8"/>
+
+                                        <!-- 담당자 -->
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="담당자:" Foreground="{StaticResource VSTextSecondary}" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                                        <TextBox Grid.Row="4" Grid.Column="1" Name="LocationManagerInput" Background="{StaticResource VSDarkBg}" Foreground="{StaticResource VSTextPrimary}" BorderBrush="{StaticResource VSBorder}" Padding="8"/>
+
+                                        <!-- 연락처 -->
+                                        <TextBlock Grid.Row="6" Grid.Column="0" Text="연락처:" Foreground="{StaticResource VSTextSecondary}" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                                        <TextBox Grid.Row="6" Grid.Column="1" Name="LocationPhoneInput" Background="{StaticResource VSDarkBg}" Foreground="{StaticResource VSTextPrimary}" BorderBrush="{StaticResource VSBorder}" Padding="8"/>
+
+                                        <!-- 비고 -->
+                                        <TextBlock Grid.Row="8" Grid.Column="0" Text="비고:" Foreground="{StaticResource VSTextSecondary}" VerticalAlignment="Top" Margin="0,8,15,0"/>
+                                        <TextBox Grid.Row="8" Grid.Column="1" Name="LocationNotesInput" Background="{StaticResource VSDarkBg}" Foreground="{StaticResource VSTextPrimary}" BorderBrush="{StaticResource VSBorder}" Padding="8" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                    </Grid>
+
+                                    <Button Content="➕ 지역 추가" Style="{StaticResource VSAccentButton}" HorizontalAlignment="Right" Margin="0,15,0,0" Padding="15,8"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 지역 목록 -->
+                            <Border Background="{StaticResource VSLightBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="20">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,15">
+                                        <TextBlock Text="📍 등록된 지역 목록" Foreground="{StaticResource VSTextPrimary}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                                        <Button Content="🔄 새로고침" Style="{StaticResource VSButton}" HorizontalAlignment="Right" Padding="10,5"/>
+                                    </Grid>
+
+                                    <!-- 지역 리스트 플레이스홀더 -->
+                                    <Border Background="{StaticResource VSDarkBg}" BorderBrush="{StaticResource VSBorder}" BorderThickness="1" Padding="15" Height="300">
+                                        <StackPanel>
+                                            <TextBlock Text="등록된 지역이 없습니다" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       HorizontalAlignment="Center" 
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,100,0,0"/>
+                                            <TextBlock Text="위 양식을 사용하여 새 지역을 추가하세요" 
+                                                       Foreground="{StaticResource VSTextSecondary}" 
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Center" 
+                                                       Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <TextBlock Text="상태: 준비" Foreground="{StaticResource VSTextSecondary}" FontSize="11" Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
         </Grid>
     </Grid>
 </Window>

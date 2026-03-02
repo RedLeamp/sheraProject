@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace OfficeManagerWPF.Models
 {
@@ -15,6 +16,13 @@ namespace OfficeManagerWPF.Models
         public string Notes { get; set; }
         public string Location { get; set; } // 지역 (남양, 향남 등)
         public bool IsActive { get; set; }
+
+        // 입금 관련 필드
+        public DateTime? LastPaymentDate { get; set; } // 마지막 입금일
+        public decimal TotalPayments { get; set; } // 총 입금액 (현재 기간)
+        public decimal UnpaidAmount { get; set; } // 미수금액
+        public int PaymentCount { get; set; } // 입금 횟수
+        public string PaymentStatus { get; set; } // 입금 상태: "정상", "지연", "미납"
 
         public Company()
         {

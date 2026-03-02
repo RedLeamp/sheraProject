@@ -26,7 +26,7 @@ namespace OfficeManagerWPF.Services
             {
                 connection.Open();
 
-                // Companies 테이블
+                // Companies 테이블 (입금 정보 통합)
                 string createCompaniesTable = @"
                     CREATE TABLE IF NOT EXISTS Companies (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,12 @@ namespace OfficeManagerWPF.Services
                         Email TEXT,
                         Notes TEXT,
                         Location TEXT,
-                        IsActive INTEGER NOT NULL DEFAULT 1
+                        IsActive INTEGER NOT NULL DEFAULT 1,
+                        LastPaymentDate TEXT,
+                        TotalPayments REAL NOT NULL DEFAULT 0,
+                        UnpaidAmount REAL NOT NULL DEFAULT 0,
+                        PaymentCount INTEGER NOT NULL DEFAULT 0,
+                        PaymentStatus TEXT DEFAULT '정상'
                     )";
 
                 // Payments 테이블
@@ -96,6 +101,20 @@ namespace OfficeManagerWPF.Services
                 {
                     // 컬럼이 이미 있으면 무시
                 }
+
+                // 입금 관련 컬럼 추가 (기존 DB 업그레이드)
+                try
+                {
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN LastPaymentDate TEXT", connection);
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN TotalPayments REAL NOT NULL DEFAULT 0", connection);
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN UnpaidAmount REAL NOT NULL DEFAULT 0", connection);
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN PaymentCount INTEGER NOT NULL DEFAULT 0", connection);
+                    ExecuteNonQuery("ALTER TABLE Companies ADD COLUMN PaymentStatus TEXT DEFAULT '정상'", connection);
+                }
+                catch
+                {
+                    // 컬럼이 이미 있으면 무시
+                }
             }
         }
 
@@ -124,7 +143,13 @@ namespace OfficeManagerWPF.Services
                             Email = reader.IsDBNull(7) ? null : reader.GetString(7),
                             Notes = reader.IsDBNull(8) ? null : reader.GetString(8),
                             Location = reader.IsDBNull(9) ? null : reader.GetString(9),
-                            IsActive = reader.GetInt32(10) == 1
+                            IsActive = reader.GetInt32(10) == 1,
+                            // 입금 관련 필드 (11-15번 인덱스)
+                            LastPaymentDate = reader.IsDBNull(11) ? (DateTime?)null : DateTime.Parse(reader.GetString(11)),
+                            TotalPayments = reader.IsDBNull(12) ? 0 : reader.GetDecimal(12),
+                            UnpaidAmount = reader.IsDBNull(13) ? 0 : reader.GetDecimal(13),
+                            PaymentCount = reader.IsDBNull(14) ? 0 : reader.GetInt32(14),
+                            PaymentStatus = reader.IsDBNull(15) ? "정상" : reader.GetString(15)
                         });
                     }
                 }
@@ -138,9 +163,11 @@ namespace OfficeManagerWPF.Services
             {
                 connection.Open();
                 string query = @"INSERT INTO Companies (Name, Type, ContractDate, MonthlyFee, ContactPerson, 
-                                PhoneNumber, Email, Notes, Location, IsActive) 
+                                PhoneNumber, Email, Notes, Location, IsActive, LastPaymentDate, TotalPayments, 
+                                UnpaidAmount, PaymentCount, PaymentStatus) 
                                 VALUES (@Name, @Type, @ContractDate, @MonthlyFee, @ContactPerson, 
-                                @PhoneNumber, @Email, @Notes, @Location, @IsActive)";
+                                @PhoneNumber, @Email, @Notes, @Location, @IsActive, @LastPaymentDate, 
+                                @TotalPayments, @UnpaidAmount, @PaymentCount, @PaymentStatus)";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     AddCompanyParameters(command, company);
@@ -156,7 +183,10 @@ namespace OfficeManagerWPF.Services
                 connection.Open();
                 string query = @"UPDATE Companies SET Name=@Name, Type=@Type, ContractDate=@ContractDate, 
                                 MonthlyFee=@MonthlyFee, ContactPerson=@ContactPerson, PhoneNumber=@PhoneNumber, 
-                                Email=@Email, Notes=@Notes, Location=@Location, IsActive=@IsActive WHERE Id=@Id";
+                                Email=@Email, Notes=@Notes, Location=@Location, IsActive=@IsActive, 
+                                LastPaymentDate=@LastPaymentDate, TotalPayments=@TotalPayments, 
+                                UnpaidAmount=@UnpaidAmount, PaymentCount=@PaymentCount, PaymentStatus=@PaymentStatus 
+                                WHERE Id=@Id";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     AddCompanyParameters(command, company);
@@ -319,6 +349,14 @@ namespace OfficeManagerWPF.Services
             command.Parameters.AddWithValue("@Notes", (object)company.Notes ?? DBNull.Value);
             command.Parameters.AddWithValue("@Location", (object)company.Location ?? DBNull.Value);
             command.Parameters.AddWithValue("@IsActive", company.IsActive ? 1 : 0);
+            
+            // 입금 관련 파라미터
+            command.Parameters.AddWithValue("@LastPaymentDate", 
+                company.LastPaymentDate.HasValue ? (object)company.LastPaymentDate.Value.ToString("yyyy-MM-dd") : DBNull.Value);
+            command.Parameters.AddWithValue("@TotalPayments", company.TotalPayments);
+            command.Parameters.AddWithValue("@UnpaidAmount", company.UnpaidAmount);
+            command.Parameters.AddWithValue("@PaymentCount", company.PaymentCount);
+            command.Parameters.AddWithValue("@PaymentStatus", (object)company.PaymentStatus ?? "정상");
         }
 
         private void AddPaymentParameters(SQLiteCommand command, Payment payment)
