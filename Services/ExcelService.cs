@@ -303,6 +303,9 @@ namespace OfficeManagerWPF.Services
                         // 헤더 매핑
                         var columnMapping = MapColumns(worksheet, headerRow);
                         
+                        // 🔍 디버그: 헤더 매핑 결과 출력
+                        System.Diagnostics.Debug.WriteLine($"헤더 행: {headerRow}, 매핑된 컬럼: {string.Join(", ", columnMapping.Select(kv => $"{kv.Key}={kv.Value}"))}");
+                        
                         // 데이터 행 처리 (헤더 다음 행부터)
                         var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? headerRow;
                         
@@ -323,7 +326,21 @@ namespace OfficeManagerWPF.Services
                                 
                                 for (int col = 1; col <= Math.Min(3, worksheet.LastColumnUsed()?.ColumnNumber() ?? 3); col++)
                                 {
-                                    var cellValue = worksheet.Cell(row, col).GetString().Trim();
+                                    var cell = worksheet.Cell(row, col);
+                                    string cellValue = "";
+                                    
+                                    // 병합된 셀 처리 - 병합된 셀의 값을 가져옴
+                                    if (cell.IsMerged())
+                                    {
+                                        var mergedRange = cell.MergedRange();
+                                        cellValue = mergedRange.FirstCell().GetString().Trim();
+                                    }
+                                    else
+                                    {
+                                        cellValue = cell.GetString().Trim();
+                                    }
+                                    
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}, 열 {col}: '{cellValue}' (병합={cell.IsMerged()})");
                                     
                                     // 유지업체/신규업체 체크 (무시할 섹션)
                                     if (cellValue.Contains("유지업체") || cellValue.Contains("유지 업체"))
@@ -423,10 +440,26 @@ namespace OfficeManagerWPF.Services
                                 
                                 // 섹션이 설정되지 않았으면 건너뛰기
                                 if (string.IsNullOrWhiteSpace(currentSection))
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 섹션이 설정되지 않음 - 건너뛰기 (첫 3열: '{worksheet.Cell(row, 1).GetString()}', '{worksheet.Cell(row, 2).GetString()}', '{worksheet.Cell(row, 3).GetString()}')");
                                     continue;
+                                }
                                 
                                 // ✅ A열(첫 번째 열) 체크 - "유지업체" 또는 "신규업체"가 있는 행 전체 무시
-                                var firstColumnValue = worksheet.Cell(row, 1).GetString().Trim();
+                                var firstCell = worksheet.Cell(row, 1);
+                                string firstColumnValue = "";
+                                
+                                // 병합된 셀 처리
+                                if (firstCell.IsMerged())
+                                {
+                                    var mergedRange = firstCell.MergedRange();
+                                    firstColumnValue = mergedRange.FirstCell().GetString().Trim();
+                                }
+                                else
+                                {
+                                    firstColumnValue = firstCell.GetString().Trim();
+                                }
+                                
                                 if (firstColumnValue.Contains("유지업체") || firstColumnValue.Contains("신규업체"))
                                 {
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: A열에 '{firstColumnValue}' 감지 - 전체 행 무시");
@@ -435,9 +468,15 @@ namespace OfficeManagerWPF.Services
                                 
                                 var rowData = GetRowData(worksheet, row, columnMapping);
                                 
+                                // 🔍 디버그: 읽은 데이터 출력
+                                System.Diagnostics.Debug.WriteLine($"행 {row}: A열='{firstColumnValue}', 업체명='{rowData.CompanyName}', 구분='{rowData.CompanyType}'");
+                                
                                 // 업체명이 비어있으면 건너뛰기
                                 if (string.IsNullOrWhiteSpace(rowData.CompanyName))
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 업체명이 비어있음 - 건너뛰기");
                                     continue;
+                                }
                                 
                                 // ✅ 업체명에 "유지업체" 또는 "신규업체"가 포함된 경우 무시
                                 if (rowData.CompanyName.Contains("유지업체") || rowData.CompanyName.Contains("신규업체"))
