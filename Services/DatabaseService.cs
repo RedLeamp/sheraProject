@@ -131,26 +131,79 @@ namespace OfficeManagerWPF.Services
                 {
                     while (reader.Read())
                     {
-                        companies.Add(new Company
+                        var company = new Company
                         {
-                            Id = reader.GetInt32(0),
-                            Name = reader.GetString(1),
-                            Type = reader.GetString(2),
-                            ContractDate = DateTime.Parse(reader.GetString(3)),
-                            MonthlyFee = reader.GetDecimal(4),
-                            ContactPerson = reader.IsDBNull(5) ? null : reader.GetString(5),
-                            PhoneNumber = reader.IsDBNull(6) ? null : reader.GetString(6),
-                            Email = reader.IsDBNull(7) ? null : reader.GetString(7),
-                            Notes = reader.IsDBNull(8) ? null : reader.GetString(8),
-                            Location = reader.IsDBNull(9) ? null : reader.GetString(9),
-                            IsActive = reader.GetInt32(10) == 1,
-                            // 입금 관련 필드 (11-15번 인덱스)
-                            LastPaymentDate = reader.IsDBNull(11) ? (DateTime?)null : DateTime.Parse(reader.GetString(11)),
-                            TotalPayments = reader.IsDBNull(12) ? 0 : reader.GetDecimal(12),
-                            UnpaidAmount = reader.IsDBNull(13) ? 0 : reader.GetDecimal(13),
-                            PaymentCount = reader.IsDBNull(14) ? 0 : reader.GetInt32(14),
-                            PaymentStatus = reader.IsDBNull(15) ? "정상" : reader.GetString(15)
-                        });
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Type = reader.GetString(reader.GetOrdinal("Type")),
+                            ContractDate = DateTime.Parse(reader.GetString(reader.GetOrdinal("ContractDate"))),
+                            MonthlyFee = reader.GetDecimal(reader.GetOrdinal("MonthlyFee")),
+                            IsActive = reader.GetInt32(reader.GetOrdinal("IsActive")) == 1
+                        };
+
+                        // Optional 필드 처리
+                        int contactPersonOrdinal = reader.GetOrdinal("ContactPerson");
+                        company.ContactPerson = reader.IsDBNull(contactPersonOrdinal) ? null : reader.GetString(contactPersonOrdinal);
+
+                        int phoneOrdinal = reader.GetOrdinal("PhoneNumber");
+                        company.PhoneNumber = reader.IsDBNull(phoneOrdinal) ? null : reader.GetString(phoneOrdinal);
+
+                        int emailOrdinal = reader.GetOrdinal("Email");
+                        company.Email = reader.IsDBNull(emailOrdinal) ? null : reader.GetString(emailOrdinal);
+
+                        int notesOrdinal = reader.GetOrdinal("Notes");
+                        company.Notes = reader.IsDBNull(notesOrdinal) ? null : reader.GetString(notesOrdinal);
+
+                        // Location 필드 (없을 수 있음)
+                        try
+                        {
+                            int locationOrdinal = reader.GetOrdinal("Location");
+                            company.Location = reader.IsDBNull(locationOrdinal) ? null : reader.GetString(locationOrdinal);
+                        }
+                        catch { company.Location = null; }
+
+                        // 입금 관련 필드 (없을 수 있음)
+                        try
+                        {
+                            int lastPaymentDateOrdinal = reader.GetOrdinal("LastPaymentDate");
+                            company.LastPaymentDate = reader.IsDBNull(lastPaymentDateOrdinal) ? 
+                                (DateTime?)null : DateTime.Parse(reader.GetString(lastPaymentDateOrdinal));
+                        }
+                        catch { company.LastPaymentDate = null; }
+
+                        try
+                        {
+                            int totalPaymentsOrdinal = reader.GetOrdinal("TotalPayments");
+                            company.TotalPayments = reader.IsDBNull(totalPaymentsOrdinal) ? 
+                                0 : Convert.ToDecimal(reader.GetValue(totalPaymentsOrdinal));
+                        }
+                        catch { company.TotalPayments = 0; }
+
+                        try
+                        {
+                            int unpaidAmountOrdinal = reader.GetOrdinal("UnpaidAmount");
+                            company.UnpaidAmount = reader.IsDBNull(unpaidAmountOrdinal) ? 
+                                0 : Convert.ToDecimal(reader.GetValue(unpaidAmountOrdinal));
+                        }
+                        catch { company.UnpaidAmount = 0; }
+
+                        try
+                        {
+                            int paymentCountOrdinal = reader.GetOrdinal("PaymentCount");
+                            company.PaymentCount = reader.IsDBNull(paymentCountOrdinal) ? 
+                                0 : Convert.ToInt32(reader.GetValue(paymentCountOrdinal));
+                        }
+                        catch { company.PaymentCount = 0; }
+
+                        try
+                        {
+                            int paymentStatusOrdinal = reader.GetOrdinal("PaymentStatus");
+                            company.PaymentStatus = reader.IsDBNull(paymentStatusOrdinal) ? 
+                                "정상" : reader.GetString(paymentStatusOrdinal);
+                        }
+                        catch { company.PaymentStatus = "정상"; }
+
+                        companies.Add(company);
                     }
                 }
             }
