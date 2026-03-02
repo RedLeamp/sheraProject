@@ -13,6 +13,7 @@ namespace OfficeManagerWPF.Models
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Notes { get; set; }
+        public string Location { get; set; } // 지역 (남양, 향남 등)
         public bool IsActive { get; set; }
 
         public Company()

@@ -38,6 +38,7 @@ namespace OfficeManagerWPF.Services
                         PhoneNumber TEXT,
                         Email TEXT,
                         Notes TEXT,
+                        Location TEXT,
                         IsActive INTEGER NOT NULL DEFAULT 1
                     )";
 
@@ -68,9 +69,33 @@ namespace OfficeManagerWPF.Services
                         Notes TEXT
                     )";
 
+                // Locations 테이블
+                string createLocationsTable = @"
+                    CREATE TABLE IF NOT EXISTS Locations (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL UNIQUE,
+                        Address TEXT,
+                        Manager TEXT,
+                        PhoneNumber TEXT,
+                        Notes TEXT,
+                        IsActive INTEGER NOT NULL DEFAULT 1
+                    )";
+
                 ExecuteNonQuery(createCompaniesTable, connection);
                 ExecuteNonQuery(createPaymentsTable, connection);
                 ExecuteNonQuery(createExpensesTable, connection);
+                ExecuteNonQuery(createLocationsTable, connection);
+                
+                // Location 컬럼이 없는 경우 추가 (기존 DB 업그레이드)
+                try
+                {
+                    string addLocationColumn = "ALTER TABLE Companies ADD COLUMN Location TEXT";
+                    ExecuteNonQuery(addLocationColumn, connection);
+                }
+                catch
+                {
+                    // 컬럼이 이미 있으면 무시
+                }
             }
         }
 
@@ -98,7 +123,8 @@ namespace OfficeManagerWPF.Services
                             PhoneNumber = reader.IsDBNull(6) ? null : reader.GetString(6),
                             Email = reader.IsDBNull(7) ? null : reader.GetString(7),
                             Notes = reader.IsDBNull(8) ? null : reader.GetString(8),
-                            IsActive = reader.GetInt32(9) == 1
+                            Location = reader.IsDBNull(9) ? null : reader.GetString(9),
+                            IsActive = reader.GetInt32(10) == 1
                         });
                     }
                 }
@@ -112,9 +138,9 @@ namespace OfficeManagerWPF.Services
             {
                 connection.Open();
                 string query = @"INSERT INTO Companies (Name, Type, ContractDate, MonthlyFee, ContactPerson, 
-                                PhoneNumber, Email, Notes, IsActive) 
+                                PhoneNumber, Email, Notes, Location, IsActive) 
                                 VALUES (@Name, @Type, @ContractDate, @MonthlyFee, @ContactPerson, 
-                                @PhoneNumber, @Email, @Notes, @IsActive)";
+                                @PhoneNumber, @Email, @Notes, @Location, @IsActive)";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     AddCompanyParameters(command, company);
@@ -130,7 +156,7 @@ namespace OfficeManagerWPF.Services
                 connection.Open();
                 string query = @"UPDATE Companies SET Name=@Name, Type=@Type, ContractDate=@ContractDate, 
                                 MonthlyFee=@MonthlyFee, ContactPerson=@ContactPerson, PhoneNumber=@PhoneNumber, 
-                                Email=@Email, Notes=@Notes, IsActive=@IsActive WHERE Id=@Id";
+                                Email=@Email, Notes=@Notes, Location=@Location, IsActive=@IsActive WHERE Id=@Id";
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     AddCompanyParameters(command, company);
@@ -291,6 +317,7 @@ namespace OfficeManagerWPF.Services
             command.Parameters.AddWithValue("@PhoneNumber", (object)company.PhoneNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@Email", (object)company.Email ?? DBNull.Value);
             command.Parameters.AddWithValue("@Notes", (object)company.Notes ?? DBNull.Value);
+            command.Parameters.AddWithValue("@Location", (object)company.Location ?? DBNull.Value);
             command.Parameters.AddWithValue("@IsActive", company.IsActive ? 1 : 0);
         }
 
@@ -323,6 +350,145 @@ namespace OfficeManagerWPF.Services
                 command.ExecuteNonQuery();
             }
         }
+
+        #region Location CRUD
+
+        public List<Location> GetAllLocations()
+        {
+            var locations = new List<Location>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT * FROM Locations ORDER BY Name";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        locations.Add(new Location
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Address = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Manager = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            PhoneNumber = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            Notes = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            IsActive = reader.GetInt32(6) == 1
+                        });
+                    }
+                }
+            }
+            return locations;
+        }
+
+        public void AddLocation(Location location)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"INSERT INTO Locations (Name, Address, Manager, PhoneNumber, Notes, IsActive) 
+                                VALUES (@Name, @Address, @Manager, @PhoneNumber, @Notes, @IsActive)";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", location.Name);
+                    command.Parameters.AddWithValue("@Address", (object)location.Address ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Manager", (object)location.Manager ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@PhoneNumber", (object)location.PhoneNumber ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Notes", (object)location.Notes ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@IsActive", location.IsActive ? 1 : 0);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateLocation(Location location)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"UPDATE Locations SET Name=@Name, Address=@Address, Manager=@Manager, 
+                                PhoneNumber=@PhoneNumber, Notes=@Notes, IsActive=@IsActive WHERE Id=@Id";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", location.Id);
+                    command.Parameters.AddWithValue("@Name", location.Name);
+                    command.Parameters.AddWithValue("@Address", (object)location.Address ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Manager", (object)location.Manager ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@PhoneNumber", (object)location.PhoneNumber ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@Notes", (object)location.Notes ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@IsActive", location.IsActive ? 1 : 0);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DeleteLocation(int id)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Locations WHERE Id=@Id";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        #endregion
+
+        #region 데이터 초기화
+
+        public void ClearAllCompanies()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Companies";
+                ExecuteNonQuery(query, connection);
+            }
+        }
+
+        public void ClearAllPayments()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Payments";
+                ExecuteNonQuery(query, connection);
+            }
+        }
+
+        public void ClearAllExpenses()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Expenses";
+                ExecuteNonQuery(query, connection);
+            }
+        }
+
+        public void ClearAllLocations()
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Locations";
+                ExecuteNonQuery(query, connection);
+            }
+        }
+
+        public void ClearAllData()
+        {
+            ClearAllPayments();
+            ClearAllExpenses();
+            ClearAllCompanies();
+            ClearAllLocations();
+        }
+
+        #endregion
 
     }
 }

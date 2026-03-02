@@ -459,6 +459,7 @@ namespace OfficeManagerWPF.Services
                 PhoneNumber = rowData.PhoneNumber,
                 Email = rowData.Email,
                 Notes = rowData.Notes,
+                Location = locationPrefix,
                 IsActive = true
             };
         }
