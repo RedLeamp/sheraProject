@@ -334,7 +334,7 @@ namespace OfficeManagerWPF.Services
                                     try
                                     {
                                         // 셀 값 가져오기 시도
-                                        cellValue = cell.GetString().Trim();
+                                        cellValue = cell.Value.ToString().Trim();
                                         
                                         // 값이 비어있고, 병합된 셀일 가능성이 있는 경우
                                         if (string.IsNullOrEmpty(cellValue))
@@ -343,7 +343,7 @@ namespace OfficeManagerWPF.Services
                                             if (row > 1)
                                             {
                                                 var upperCell = worksheet.Cell(row - 1, col);
-                                                var upperValue = upperCell.GetString().Trim();
+                                                var upperValue = upperCell.Value.ToString().Trim();
                                                 
                                                 // 위쪽 셀에 "상주업체" 등의 구분 값이 있으면 사용
                                                 if (!string.IsNullOrEmpty(upperValue) && 
@@ -443,8 +443,8 @@ namespace OfficeManagerWPF.Services
                                 }
                                 
                                 // "총 액" 체크 - 데이터 입력 종료 또는 다음 섹션으로
-                                var firstCell = worksheet.Cell(row, 1).GetString().Trim();
-                                if (firstCell.Contains("총") || firstCell.Contains("합계"))
+                                var firstCellValue = worksheet.Cell(row, 1).Value.ToString().Trim();
+                                if (firstCellValue.Contains("총") || firstCellValue.Contains("합계"))
                                 {
                                     System.Diagnostics.Debug.WriteLine($"행 {row}: 총액 행 감지 - 현재 섹션 종료");
                                     currentSection = ""; // 섹션 종료, 다음 섹션 대기
@@ -461,7 +461,7 @@ namespace OfficeManagerWPF.Services
                                 // 섹션이 설정되지 않았으면 건너뛰기
                                 if (string.IsNullOrWhiteSpace(currentSection))
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 섹션이 설정되지 않음 - 건너뛰기 (첫 3열: '{worksheet.Cell(row, 1).GetString()}', '{worksheet.Cell(row, 2).GetString()}', '{worksheet.Cell(row, 3).GetString()}')");
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 섹션이 설정되지 않음 - 건너뛰기 (첫 3열: '{worksheet.Cell(row, 1).Value}', '{worksheet.Cell(row, 2).Value}', '{worksheet.Cell(row, 3).Value}')");
                                     continue;
                                 }
                                 
@@ -472,14 +472,14 @@ namespace OfficeManagerWPF.Services
                                 // 병합된 셀 처리 - ClosedXML 방식
                                 try
                                 {
-                                    firstColumnValue = firstCell.GetString().Trim();
+                                    firstColumnValue = firstCell.Value.ToString().Trim();
                                     
                                     // 값이 비어있고 병합된 셀일 가능성이 있는 경우
                                     if (string.IsNullOrEmpty(firstColumnValue) && row > 1)
                                     {
                                         // 위쪽 셀 확인
                                         var upperCell = worksheet.Cell(row - 1, 1);
-                                        var upperValue = upperCell.GetString().Trim();
+                                        var upperValue = upperCell.Value.ToString().Trim();
                                         
                                         if (!string.IsNullOrEmpty(upperValue) && 
                                             (upperValue.Contains("업체") || upperValue.Contains("상주") || upperValue.Contains("비상주")))
@@ -576,8 +576,8 @@ namespace OfficeManagerWPF.Services
             // 처음 10행 중에서 "업체명" 또는 "구분" 포함된 행 찾기
             for (int row = 1; row <= Math.Min(10, worksheet.LastRowUsed()?.RowNumber() ?? 10); row++)
             {
-                var cell1 = worksheet.Cell(row, 1).GetString();
-                var cell3 = worksheet.Cell(row, 3).GetString();
+                var cell1 = worksheet.Cell(row, 1).Value.ToString();
+                var cell3 = worksheet.Cell(row, 3).Value.ToString();
                 
                 if (cell1.Contains("구분") || cell3.Contains("업체명"))
                 {
@@ -594,7 +594,7 @@ namespace OfficeManagerWPF.Services
             
             for (int col = 1; col <= lastCol; col++)
             {
-                var header = worksheet.Cell(headerRow, col).GetString().Trim();
+                var header = worksheet.Cell(headerRow, col).Value.ToString().Trim();
                 if (!string.IsNullOrEmpty(header))
                 {
                     mapping[header] = col;
@@ -609,19 +609,19 @@ namespace OfficeManagerWPF.Services
             var data = new RowData();
             
             if (columnMapping.ContainsKey("업체명"))
-                data.CompanyName = worksheet.Cell(row, columnMapping["업체명"]).GetString().Trim();
+                data.CompanyName = worksheet.Cell(row, columnMapping["업체명"]).Value.ToString().Trim();
             
             if (columnMapping.ContainsKey("계약자"))
-                data.ContactPerson = worksheet.Cell(row, columnMapping["계약자"]).GetString().Trim();
+                data.ContactPerson = worksheet.Cell(row, columnMapping["계약자"]).Value.ToString().Trim();
             
             if (columnMapping.ContainsKey("전화번호"))
-                data.PhoneNumber = worksheet.Cell(row, columnMapping["전화번호"]).GetString().Trim();
+                data.PhoneNumber = worksheet.Cell(row, columnMapping["전화번호"]).Value.ToString().Trim();
             
             if (columnMapping.ContainsKey("사업자등록증"))
-                data.BusinessNumber = worksheet.Cell(row, columnMapping["사업자등록증"]).GetString().Trim();
+                data.BusinessNumber = worksheet.Cell(row, columnMapping["사업자등록증"]).Value.ToString().Trim();
             
             if (columnMapping.ContainsKey("멜 주소"))
-                data.Email = worksheet.Cell(row, columnMapping["멜 주소"]).GetString().Trim();
+                data.Email = worksheet.Cell(row, columnMapping["멜 주소"]).Value.ToString().Trim();
             
             if (columnMapping.ContainsKey("최초계약일자"))
             {
