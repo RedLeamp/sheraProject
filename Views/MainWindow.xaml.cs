@@ -28,9 +28,6 @@ namespace OfficeManagerWPF
             // 지역 목록 로드
             LoadLocations();
             
-            // 대시보드 지역별 탭 생성
-            LoadDashboardLocationTabs();
-            
             // 업체 데이터 로드
             LoadCompanyData();
         }
@@ -86,7 +83,6 @@ namespace OfficeManagerWPF
                 
                 // 목록 새로고침
                 LoadLocations();
-                LoadDashboardLocationTabs();
             }
             catch (Exception ex)
             {
@@ -119,96 +115,6 @@ namespace OfficeManagerWPF
         }
 
         // 대시보드 지역별 탭 생성
-        private void LoadDashboardLocationTabs()
-        {
-            try
-            {
-                LocationFilterContainer.Visibility = Visibility.Visible;
-                LocationFilterTabs.Items.Clear();
-
-                // "전체" 탭 추가
-                var allTab = new TabItem
-                {
-                    Header = "전체",
-                    Tag = "",
-                    Content = new Grid() // 빈 컨텐츠
-                };
-                LocationFilterTabs.Items.Add(allTab);
-
-                // "남양" 탭 추가
-                var namyangTab = new TabItem
-                {
-                    Header = "남양",
-                    Tag = "남양",
-                    Content = new Grid()
-                };
-                LocationFilterTabs.Items.Add(namyangTab);
-
-                // "향남" 탭 추가
-                var hyangnամTab = new TabItem
-                {
-                    Header = "향남",
-                    Tag = "향남",
-                    Content = new Grid()
-                };
-                LocationFilterTabs.Items.Add(hyangnամTab);
-
-                LocationFilterTabs.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"지역 탭 로드 실패: {ex.Message}");
-            }
-        }
-
-        // 지역 탭 선택 변경 이벤트
-        private void LocationFilterTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (LocationFilterTabs.SelectedItem is TabItem selectedTab)
-            {
-                string selectedLocation = selectedTab.Tag?.ToString() ?? "";
-                
-                // 데이터 관리 탭의 업체 데이터 필터링
-                FilterCompanyDataByLocation(selectedLocation);
-                
-                // 통계 업데이트
-                UpdateDashboardStatistics(selectedLocation);
-            }
-        }
-
-        // 지역별 업체 데이터 필터링
-        private void FilterCompanyDataByLocation(string location)
-        {
-            try
-            {
-                var allCompanies = _dbService.GetAllCompanies();
-                
-                if (string.IsNullOrEmpty(location))
-                {
-                    // 전체 표시
-                    CompaniesDataGrid.ItemsSource = allCompanies;
-                    CompanyStatusText.Text = $"상태: {allCompanies.Count}개 업체 (전체)";
-                }
-                else
-                {
-                    // 지역별 필터링
-                    var filtered = allCompanies.Where(c => c.Location == location).ToList();
-                    CompaniesDataGrid.ItemsSource = filtered;
-                    CompanyStatusText.Text = $"상태: {filtered.Count}개 업체 ({location})";
-                }
-            }
-            catch (Exception ex)
-            {
-                CompanyStatusText.Text = $"오류: {ex.Message}";
-            }
-        }
-
-        // 대시보드 통계 업데이트
-        private void UpdateDashboardStatistics(string location)
-        {
-            // MainViewModel을 통해 통계 업데이트
-            // 향후 구현 예정
-        }
 
         // 데이터 초기화 (업체+입금)
         private void ClearCompanyData_Click(object sender, RoutedEventArgs e)
@@ -273,7 +179,6 @@ namespace OfficeManagerWPF
                     _dbService.ClearAllLocations();
                     MessageBox.Show("지역 데이터가 초기화되었습니다.", "초기화 완료", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadLocations();
-                    LoadDashboardLocationTabs();
                 }
                 catch (Exception ex)
                 {
