@@ -437,7 +437,7 @@
                                         </StackPanel>
 
                                         <!-- 상주업체 데이터그리드 -->
-                                        <DataGrid Name="ResidentCompaniesDataGrid" 
+                                                <DataGrid Name="ResidentCompaniesDataGrid" 
                                                   AutoGenerateColumns="False"
                                                   CanUserAddRows="False"
                                                   CanUserDeleteRows="False"
@@ -450,9 +450,9 @@
                                                   BorderBrush="{StaticResource VSBorder}"
                                                   BorderThickness="1"
                                                   GridLinesVisibility="Horizontal"
-                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}"
+                                                  HorizontalGridLinesBrush="{StaticResource VSBorder}">
 
-                                <!-- 비상주업체 탭 -->
+                                                    <!-- 비상주업체 탭 -->
                                 <TabItem Header="비상주업체">
                                     <StackPanel Margin="15">
                                         <TextBlock Text="비상주업체 (현재 운영 중 - 비상주)" 
