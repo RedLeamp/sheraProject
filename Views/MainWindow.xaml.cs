@@ -30,6 +30,9 @@ namespace OfficeManagerWPF
             
             // 대시보드 지역별 탭 생성
             LoadDashboardLocationTabs();
+            
+            // 업체 데이터 로드
+            LoadCompanyData();
         }
 
         private void SetWindowIcon()
@@ -231,6 +234,27 @@ namespace OfficeManagerWPF
             }
         }
 
+        // 업체 데이터 로드
+        private void LoadCompanyData()
+        {
+            try
+            {
+                var companies = _dbService.GetAllCompanies();
+                CompaniesDataGrid.ItemsSource = companies;
+                CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨";
+            }
+            catch (Exception ex)
+            {
+                CompanyStatusText.Text = $"오류: {ex.Message}";
+            }
+        }
+
+        // 업체 데이터 새로고침
+        private void RefreshCompanyData_Click(object sender, RoutedEventArgs e)
+        {
+            LoadCompanyData();
+        }
+
         // 임대내역 가져오기
         private void ImportRentalRecords_Click(object sender, RoutedEventArgs e)
         {
@@ -347,6 +371,9 @@ namespace OfficeManagerWPF
                                          $"총 처리: {companies.Count + payments.Count}개";
 
                     MessageBox.Show(resultMessage, "가져오기 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // 데이터 새로고침
+                    LoadCompanyData();
                 }
             }
             catch (Exception ex)
