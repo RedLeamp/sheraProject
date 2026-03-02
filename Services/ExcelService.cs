@@ -300,15 +300,55 @@ namespace OfficeManagerWPF.Services
                         // 데이터 행 처리 (헤더 다음 행부터)
                         var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? headerRow;
                         
+                        // 현재 구분 (상주업체/비상주업체)
+                        string currentSection = "";
+                        
                         for (int row = headerRow + 1; row <= lastRow; row++)
                         {
                             try
                             {
+                                // 첫 번째 열에서 구분 체크
+                                var firstCell = worksheet.Cell(row, 1).GetString().Trim();
+                                
+                                // "상주업체" 또는 "비상주업체" 구분 감지
+                                if (firstCell.Contains("상주업체"))
+                                {
+                                    currentSection = "상주업체";
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작");
+                                    continue;
+                                }
+                                else if (firstCell.Contains("비상주업체"))
+                                {
+                                    currentSection = "비상주업체";
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작");
+                                    continue;
+                                }
+                                
+                                // "총 액" 또는 빈 섹션 체크 - 데이터 입력 종료
+                                if (firstCell.Contains("총") || firstCell.Contains("합계") || string.IsNullOrWhiteSpace(currentSection))
+                                {
+                                    if (firstCell.Contains("총") || firstCell.Contains("합계"))
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 데이터 입력 종료 (총액 행)");
+                                        break; // 총액 행 이후는 처리하지 않음
+                                    }
+                                    continue;
+                                }
+                                
                                 var rowData = GetRowData(worksheet, row, columnMapping);
                                 
                                 // 업체명이 비어있으면 건너뛰기
                                 if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                                     continue;
+                                
+                                // 상주업체 또는 비상주업체 섹션에 있는 데이터만 처리
+                                if (string.IsNullOrWhiteSpace(currentSection))
+                                    continue;
+                                
+                                // 구분 필드에 상주/비상주 정보 저장
+                                rowData.CompanyType = currentSection == "상주업체" ? "상주" : "비상주";
+                                
+                                System.Diagnostics.Debug.WriteLine($"행 {row}: {rowData.CompanyName} ({currentSection})");
                                 
                                 // Company 객체 생성
                                 var company = CreateCompanyFromRow(rowData, locationPrefix);
@@ -432,11 +472,24 @@ namespace OfficeManagerWPF.Services
             }
             
             if (columnMapping.ContainsKey("법인/개인"))
-                data.CompanyType = worksheet.Cell(row, columnMapping["법인/개인"]).GetString().Trim();
+            {
+                var excelType = worksheet.Cell(row, columnMapping["법인/개인"]).GetString().Trim();
+                // CompanyType이 이미 설정되어 있으면 (상주/비상주) 유지, 없으면 엑셀 값 사용
+                if (string.IsNullOrWhiteSpace(data.CompanyType))
+                    data.CompanyType = excelType;
+            }
             else if (columnMapping.ContainsKey("개인/법인"))
-                data.CompanyType = worksheet.Cell(row, columnMapping["개인/법인"]).GetString().Trim();
+            {
+                var excelType = worksheet.Cell(row, columnMapping["개인/법인"]).GetString().Trim();
+                if (string.IsNullOrWhiteSpace(data.CompanyType))
+                    data.CompanyType = excelType;
+            }
             else if (columnMapping.ContainsKey("구분"))
-                data.CompanyType = worksheet.Cell(row, columnMapping["구분"]).GetString().Trim();
+            {
+                var excelType = worksheet.Cell(row, columnMapping["구분"]).GetString().Trim();
+                if (string.IsNullOrWhiteSpace(data.CompanyType))
+                    data.CompanyType = excelType;
+            }
             
             if (columnMapping.ContainsKey("폐업서류접수여부 / 비    고"))
                 data.Notes = worksheet.Cell(row, columnMapping["폐업서류접수여부 / 비    고"]).GetString().Trim();
