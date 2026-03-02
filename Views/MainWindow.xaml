@@ -20,6 +20,7 @@
         <SolidColorBrush x:Key="VSTextSecondary" Color="#CCCCCC"/>
         <SolidColorBrush x:Key="VSBorder" Color="#3F3F46"/>
         <SolidColorBrush x:Key="VSHover" Color="#3E3E40"/>
+        <SolidColorBrush x:Key="VSSelection" Color="#094771"/>
 
         <!-- 버튼 스타일 -->
         <Style x:Key="VSButton" TargetType="Button">
