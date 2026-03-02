@@ -213,13 +213,8 @@ namespace OfficeManagerWPF
                 DepositRefundCompaniesDataGrid.ItemsSource = depositRefundCompanies;
                 DepositRefundStatusText.Text = $"상태: {depositRefundCompanies.Count}개 예치금반환업체 로드됨";
                 
-                // 남양 탭의 DataGrid (전체 탭에 남아있을 경우 대비)
+                // 남양, 향남 탭의 DataGrid (지역별 필터링)
                 var companies = _dbService.GetAllCompanies();
-                if (CompaniesDataGrid != null)
-                {
-                    CompaniesDataGrid.ItemsSource = companies;
-                    CompanyStatusText.Text = $"상태: {companies.Count}개 업체 로드됨 (전체)";
-                }
                 
                 var namyangCompanies = companies.Where(c => c.Location == "남양").ToList();
                 if (NamyangCompanyDataGrid != null)
