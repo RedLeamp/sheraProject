@@ -164,8 +164,7 @@
             <TabControl Name="MainLocationTabs" 
                         Background="{StaticResource VSDarkBg}" 
                         BorderThickness="0" 
-                        Padding="0"
-                        SelectionChanged="MainLocationTabs_SelectionChanged">
+                        Padding="0">
                 <TabControl.Resources>
                     <!-- 크롬 스타일 지역 탭 -->
                     <Style TargetType="TabItem">
