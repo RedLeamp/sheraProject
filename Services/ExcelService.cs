@@ -259,5 +259,243 @@ namespace OfficeManagerWPF.Services
         }
 
         #endregion
+
+        #region 복잡한 Excel 파일 Import (남양/향남 임대내역 형식)
+
+        /// <summary>
+        /// 복잡한 Excel 파일 구조를 분석하여 업체/입금 데이터 추출
+        /// 헤더가 2행에 있고, 데이터가 3행부터 시작하는 형식 지원
+        /// </summary>
+        public (List<Company> companies, List<Payment> payments) ImportComplexExcel(string filePath, string locationPrefix = "")
+        {
+            var companies = new List<Company>();
+            var payments = new List<Payment>();
+            
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    // 모든 시트 처리 (1월, 2월 등)
+                    foreach (var worksheet in workbook.Worksheets)
+                    {
+                        var sheetName = worksheet.Name;
+                        
+                        // "정산" 시트는 건너뛰기
+                        if (sheetName.Contains("정산"))
+                            continue;
+                        
+                        System.Diagnostics.Debug.WriteLine($"처리 중인 시트: {sheetName}");
+                        
+                        // 헤더 행 찾기 (보통 2행)
+                        int headerRow = FindHeaderRow(worksheet);
+                        if (headerRow == -1)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"시트 {sheetName}에서 헤더를 찾을 수 없습니다.");
+                            continue;
+                        }
+                        
+                        // 헤더 매핑
+                        var columnMapping = MapColumns(worksheet, headerRow);
+                        
+                        // 데이터 행 처리 (헤더 다음 행부터)
+                        var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? headerRow;
+                        
+                        for (int row = headerRow + 1; row <= lastRow; row++)
+                        {
+                            try
+                            {
+                                var rowData = GetRowData(worksheet, row, columnMapping);
+                                
+                                // 업체명이 비어있으면 건너뛰기
+                                if (string.IsNullOrWhiteSpace(rowData.CompanyName))
+                                    continue;
+                                
+                                // Company 객체 생성
+                                var company = CreateCompanyFromRow(rowData, locationPrefix);
+                                if (company != null && !companies.Any(c => c.Name == company.Name && c.PhoneNumber == company.PhoneNumber))
+                                {
+                                    companies.Add(company);
+                                }
+                                
+                                // Payment 객체 생성
+                                var payment = CreatePaymentFromRow(rowData, sheetName);
+                                if (payment != null)
+                                {
+                                    payments.Add(payment);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"행 {row} 처리 실패: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"총 {companies.Count}개 업체, {payments.Count}개 입금 데이터 추출 완료");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Excel 파일 읽기 실패: {ex.Message}");
+                throw;
+            }
+            
+            return (companies, payments);
+        }
+        
+        private int FindHeaderRow(IXLWorksheet worksheet)
+        {
+            // 처음 10행 중에서 "업체명" 또는 "구분" 포함된 행 찾기
+            for (int row = 1; row <= Math.Min(10, worksheet.LastRowUsed()?.RowNumber() ?? 10); row++)
+            {
+                var cell1 = worksheet.Cell(row, 1).GetString();
+                var cell3 = worksheet.Cell(row, 3).GetString();
+                
+                if (cell1.Contains("구분") || cell3.Contains("업체명"))
+                {
+                    return row;
+                }
+            }
+            return -1;
+        }
+        
+        private Dictionary<string, int> MapColumns(IXLWorksheet worksheet, int headerRow)
+        {
+            var mapping = new Dictionary<string, int>();
+            var lastCol = worksheet.LastColumnUsed()?.ColumnNumber() ?? 30;
+            
+            for (int col = 1; col <= lastCol; col++)
+            {
+                var header = worksheet.Cell(headerRow, col).GetString().Trim();
+                if (!string.IsNullOrEmpty(header))
+                {
+                    mapping[header] = col;
+                }
+            }
+            
+            return mapping;
+        }
+        
+        private RowData GetRowData(IXLWorksheet worksheet, int row, Dictionary<string, int> columnMapping)
+        {
+            var data = new RowData();
+            
+            if (columnMapping.ContainsKey("업체명"))
+                data.CompanyName = worksheet.Cell(row, columnMapping["업체명"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("계약자"))
+                data.ContactPerson = worksheet.Cell(row, columnMapping["계약자"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("전화번호"))
+                data.PhoneNumber = worksheet.Cell(row, columnMapping["전화번호"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("사업자등록증"))
+                data.BusinessNumber = worksheet.Cell(row, columnMapping["사업자등록증"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("멜 주소"))
+                data.Email = worksheet.Cell(row, columnMapping["멜 주소"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("최초계약일자"))
+            {
+                var cellValue = worksheet.Cell(row, columnMapping["최초계약일자"]).Value;
+                if (cellValue.IsDateTime)
+                    data.ContractDate = cellValue.GetDateTime();
+                else if (DateTime.TryParse(cellValue.ToString(), out var parsedDate))
+                    data.ContractDate = parsedDate;
+            }
+            
+            if (columnMapping.ContainsKey("월임대료"))
+            {
+                var cellValue = worksheet.Cell(row, columnMapping["월임대료"]).Value;
+                if (cellValue.IsNumber)
+                    data.MonthlyFee = (decimal)cellValue.GetNumber();
+                else if (decimal.TryParse(cellValue.ToString(), out var fee))
+                    data.MonthlyFee = fee;
+            }
+            
+            if (columnMapping.ContainsKey("입금일자"))
+            {
+                var cellValue = worksheet.Cell(row, columnMapping["입금일자"]).Value;
+                if (cellValue.IsDateTime)
+                    data.PaymentDate = cellValue.GetDateTime();
+                else if (DateTime.TryParse(cellValue.ToString(), out var parsedDate))
+                    data.PaymentDate = parsedDate;
+            }
+            
+            if (columnMapping.ContainsKey("납입임대료"))
+            {
+                var cellValue = worksheet.Cell(row, columnMapping["납입임대료"]).Value;
+                if (cellValue.IsNumber)
+                    data.Amount = (decimal)cellValue.GetNumber();
+                else if (decimal.TryParse(cellValue.ToString(), out var amount))
+                    data.Amount = amount;
+            }
+            
+            if (columnMapping.ContainsKey("법인/개인"))
+                data.CompanyType = worksheet.Cell(row, columnMapping["법인/개인"]).GetString().Trim();
+            else if (columnMapping.ContainsKey("개인/법인"))
+                data.CompanyType = worksheet.Cell(row, columnMapping["개인/법인"]).GetString().Trim();
+            
+            if (columnMapping.ContainsKey("폐업서류접수여부 / 비    고"))
+                data.Notes = worksheet.Cell(row, columnMapping["폐업서류접수여부 / 비    고"]).GetString().Trim();
+            else if (columnMapping.ContainsKey("비고"))
+                data.Notes = worksheet.Cell(row, columnMapping["비고"]).GetString().Trim();
+            
+            return data;
+        }
+        
+        private Company CreateCompanyFromRow(RowData rowData, string locationPrefix)
+        {
+            if (string.IsNullOrWhiteSpace(rowData.CompanyName))
+                return null;
+            
+            return new Company
+            {
+                Name = string.IsNullOrWhiteSpace(locationPrefix) ? rowData.CompanyName : $"[{locationPrefix}] {rowData.CompanyName}",
+                Type = rowData.CompanyType.Contains("법인") ? "법인" : "개인",
+                ContractDate = rowData.ContractDate ?? DateTime.Now,
+                MonthlyFee = rowData.MonthlyFee,
+                ContactPerson = rowData.ContactPerson,
+                PhoneNumber = rowData.PhoneNumber,
+                Email = rowData.Email,
+                Notes = rowData.Notes,
+                IsActive = true
+            };
+        }
+        
+        private Payment CreatePaymentFromRow(RowData rowData, string period)
+        {
+            if (rowData.PaymentDate == null || rowData.Amount <= 0)
+                return null;
+            
+            return new Payment
+            {
+                CompanyName = rowData.CompanyName,
+                PaymentDate = rowData.PaymentDate.Value,
+                Amount = rowData.Amount,
+                Period = period,
+                PaymentMethod = "계좌이체",
+                Notes = rowData.Notes,
+                IsConfirmed = true
+            };
+        }
+        
+        // 행 데이터를 담을 내부 클래스
+        private class RowData
+        {
+            public string CompanyName { get; set; }
+            public string ContactPerson { get; set; }
+            public string PhoneNumber { get; set; }
+            public string BusinessNumber { get; set; }
+            public string Email { get; set; }
+            public DateTime? ContractDate { get; set; }
+            public decimal MonthlyFee { get; set; }
+            public DateTime? PaymentDate { get; set; }
+            public decimal Amount { get; set; }
+            public string CompanyType { get; set; }
+            public string Notes { get; set; }
+        }
+
+        #endregion
     }
 }

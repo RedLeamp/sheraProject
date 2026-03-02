@@ -138,6 +138,100 @@ namespace OfficeManagerWPF.Views
             }
         }
 
+        private void ImportComplexExcel_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var openDialog = new OpenFileDialog
+                {
+                    Filter = "Excel 파일 (*.xlsx)|*.xlsx|모든 파일 (*.*)|*.*",
+                    Title = "남양/향남 임대내역 Excel 파일 선택"
+                };
+
+                if (openDialog.ShowDialog() == true)
+                {
+                    // 파일 이름에서 지역 정보 추출
+                    var fileName = System.IO.Path.GetFileNameWithoutExtension(openDialog.FileName);
+                    string locationPrefix = "";
+                    
+                    if (fileName.Contains("남양"))
+                        locationPrefix = "남양";
+                    else if (fileName.Contains("향남"))
+                        locationPrefix = "향남";
+
+                    var result = MessageBox.Show(
+                        $"임대내역 Excel 파일을 가져옵니다.\n\n" +
+                        $"파일: {fileName}\n" +
+                        $"지역: {(string.IsNullOrEmpty(locationPrefix) ? "미지정" : locationPrefix)}\n\n" +
+                        $"• 모든 시트의 업체 정보를 추출합니다.\n" +
+                        $"• 입금 내역도 함께 추출됩니다.\n" +
+                        $"• 기존 데이터는 유지되며, 새로운 데이터만 추가됩니다.\n\n" +
+                        $"계속하시겠습니까?",
+                        "확인",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        UpdateStatus("임대내역 분석 중...");
+                        
+                        // Excel 파일에서 데이터 추출
+                        var (companies, payments) = _excelService.ImportComplexExcel(openDialog.FileName, locationPrefix);
+                        
+                        int addedCompanies = 0;
+                        int addedPayments = 0;
+                        
+                        // 업체 데이터 추가
+                        foreach (var company in companies)
+                        {
+                            try
+                            {
+                                _databaseService.AddCompany(company);
+                                addedCompanies++;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"업체 추가 실패 ({company.Name}): {ex.Message}");
+                            }
+                        }
+                        
+                        // 입금 데이터 추가
+                        foreach (var payment in payments)
+                        {
+                            try
+                            {
+                                _databaseService.AddPayment(payment);
+                                addedPayments++;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"입금 추가 실패: {ex.Message}");
+                            }
+                        }
+
+                        RefreshCompanies();
+                        RefreshPayments();
+                        
+                        UpdateStatus($"임대내역 가져오기 완료: 업체 {addedCompanies}건, 입금 {addedPayments}건 추가됨");
+                        
+                        MessageBox.Show(
+                            $"임대내역 Excel 파일 가져오기 완료!\n\n" +
+                            $"• 업체 정보: {addedCompanies}건 추가\n" +
+                            $"• 입금 내역: {addedPayments}건 추가\n\n" +
+                            $"총 {companies.Count}개 업체, {payments.Count}개 입금 데이터를 분석했습니다.", 
+                            "완료", 
+                            MessageBoxButton.OK, 
+                            MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"임대내역 가져오기 실패:\n{ex.Message}\n\n{ex.StackTrace}", "오류", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         #endregion
 
         #region 입금 데이터
