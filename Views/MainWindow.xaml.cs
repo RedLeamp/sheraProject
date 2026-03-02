@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 using OfficeManagerWPF.Models;
 using OfficeManagerWPF.Services;
 
@@ -12,12 +13,14 @@ namespace OfficeManagerWPF
     public partial class MainWindow : Window
     {
         private readonly DatabaseService _dbService;
+        private readonly ExcelService _excelService;
 
         public MainWindow()
         {
             InitializeComponent();
             
             _dbService = new DatabaseService();
+            _excelService = new ExcelService();
             
             // 아이콘 설정 (Code-Behind 방식)
             SetWindowIcon();
@@ -225,6 +228,130 @@ namespace OfficeManagerWPF
                 {
                     MessageBox.Show($"초기화 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        // 임대내역 가져오기
+        private void ImportRentalRecords_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Excel 파일 (*.xlsx)|*.xlsx|모든 파일 (*.*)|*.*",
+                    Title = "임대내역 엑셀 파일 선택",
+                    Multiselect = false
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string filePath = openFileDialog.FileName;
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+
+                    // 파일명에서 지역 추출 (예: "2026_남양임대내역" -> "남양")
+                    string locationPrefix = "";
+                    if (fileName.Contains("남양"))
+                        locationPrefix = "남양";
+                    else if (fileName.Contains("향남"))
+                        locationPrefix = "향남";
+
+                    // 사용자에게 확인
+                    var confirmResult = MessageBox.Show(
+                        $"파일: {fileName}\n" +
+                        $"감지된 지역: {(string.IsNullOrEmpty(locationPrefix) ? "없음" : locationPrefix)}\n\n" +
+                        $"업체 데이터와 입금 데이터를 가져오시겠습니까?",
+                        "임대내역 가져오기 확인",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (confirmResult != MessageBoxResult.Yes)
+                        return;
+
+                    // 엑셀 파일에서 데이터 읽기
+                    var (companies, payments) = _excelService.ImportComplexExcel(filePath, locationPrefix);
+
+                    // 업체 ID 매핑용 딕셔너리
+                    var companyIdMap = new Dictionary<string, int>();
+                    int addedCompanies = 0;
+                    int addedPayments = 0;
+                    int skippedPayments = 0;
+
+                    // 1단계: 업체 추가 및 ID 매핑
+                    foreach (var company in companies)
+                    {
+                        try
+                        {
+                            _dbService.AddCompany(company);
+                            
+                            // 추가된 업체 조회 (ID 얻기)
+                            var addedCompany = _dbService.GetAllCompanies()
+                                .FirstOrDefault(c => c.Name == company.Name && c.PhoneNumber == company.PhoneNumber);
+                            
+                            if (addedCompany != null)
+                            {
+                                // 지역 접두사 제거한 이름으로 매핑
+                                string cleanName = company.Name.Replace($"[{locationPrefix}] ", "");
+                                companyIdMap[cleanName] = addedCompany.Id;
+                                addedCompanies++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"업체 추가 실패: {company.Name} - {ex.Message}");
+                        }
+                    }
+
+                    // 2단계: 입금 데이터 추가 (CompanyId 매핑)
+                    foreach (var payment in payments)
+                    {
+                        try
+                        {
+                            // CompanyId 매핑
+                            if (companyIdMap.ContainsKey(payment.CompanyName))
+                            {
+                                payment.CompanyId = companyIdMap[payment.CompanyName];
+                                _dbService.AddPayment(payment);
+                                addedPayments++;
+                            }
+                            else
+                            {
+                                // 매핑 실패 시 부분 이름 검색
+                                var existingCompany = _dbService.GetAllCompanies()
+                                    .FirstOrDefault(c => c.Name.Contains(payment.CompanyName));
+                                
+                                if (existingCompany != null)
+                                {
+                                    payment.CompanyId = existingCompany.Id;
+                                    _dbService.AddPayment(payment);
+                                    addedPayments++;
+                                }
+                                else
+                                {
+                                    skippedPayments++;
+                                    System.Diagnostics.Debug.WriteLine($"입금 데이터 건너뜀: {payment.CompanyName} (업체를 찾을 수 없음)");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            skippedPayments++;
+                            System.Diagnostics.Debug.WriteLine($"입금 추가 실패: {payment.CompanyName} - {ex.Message}");
+                        }
+                    }
+
+                    // 결과 표시
+                    string resultMessage = $"임대내역 가져오기 완료!\n\n" +
+                                         $"추가된 업체: {addedCompanies}개\n" +
+                                         $"추가된 입금: {addedPayments}개\n" +
+                                         $"건너뛴 입금: {skippedPayments}개\n" +
+                                         $"총 처리: {companies.Count + payments.Count}개";
+
+                    MessageBox.Show(resultMessage, "가져오기 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"임대내역 가져오기 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
