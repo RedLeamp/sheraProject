@@ -273,7 +273,13 @@ namespace OfficeManagerWPF.Services
             
             try
             {
-                using (var workbook = new XLWorkbook(filePath))
+                // LoadOptions를 사용하여 읽기 전용 모드로 파일 열기
+                var loadOptions = new LoadOptions
+                {
+                    RecalculateAllFormulas = false // 수식 재계산 비활성화로 성능 향상
+                };
+                
+                using (var workbook = new XLWorkbook(filePath, loadOptions))
                 {
                     // 모든 시트 처리 (1월, 2월 등)
                     foreach (var worksheet in workbook.Worksheets)

@@ -260,8 +260,30 @@ namespace OfficeManagerWPF
                     if (confirmResult != MessageBoxResult.Yes)
                         return;
 
-                    // 엑셀 파일에서 데이터 읽기
-                    var (companies, payments) = _excelService.ImportComplexExcel(filePath, locationPrefix);
+                    // 파일을 임시 폴더로 복사 (파일 잠금 문제 해결)
+                    string tempFilePath = System.IO.Path.Combine(
+                        System.IO.Path.GetTempPath(), 
+                        $"temp_import_{System.IO.Path.GetFileName(filePath)}");
+                    
+                    try
+                    {
+                        System.IO.File.Copy(filePath, tempFilePath, true);
+                        System.Diagnostics.Debug.WriteLine($"임시 파일 생성: {tempFilePath}");
+                    }
+                    catch (Exception copyEx)
+                    {
+                        MessageBox.Show(
+                            $"파일 복사 실패: {copyEx.Message}\n\n원본 파일이 다른 프로그램(Excel 등)에서 열려있는지 확인해주세요.",
+                            "파일 접근 오류",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        // 임시 파일에서 데이터 읽기
+                        var (companies, payments) = _excelService.ImportComplexExcel(tempFilePath, locationPrefix);
 
                     // 업체 ID 매핑용 딕셔너리
                     var companyIdMap = new Dictionary<string, int>();
@@ -343,6 +365,23 @@ namespace OfficeManagerWPF
                     
                     // 데이터 새로고침
                     LoadCompanyData();
+                    }
+                    finally
+                    {
+                        // 임시 파일 삭제
+                        try
+                        {
+                            if (System.IO.File.Exists(tempFilePath))
+                            {
+                                System.IO.File.Delete(tempFilePath);
+                                System.Diagnostics.Debug.WriteLine($"임시 파일 삭제: {tempFilePath}");
+                            }
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"임시 파일 삭제 실패: {deleteEx.Message}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
