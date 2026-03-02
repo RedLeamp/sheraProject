@@ -328,19 +328,39 @@ namespace OfficeManagerWPF.Services
                                 {
                                     var cell = worksheet.Cell(row, col);
                                     string cellValue = "";
+                                    bool isMerged = false;
                                     
-                                    // 병합된 셀 처리 - 병합된 셀의 값을 가져옴
-                                    if (cell.IsMerged())
+                                    // 병합된 셀 처리 - ClosedXML 방식
+                                    try
                                     {
-                                        var mergedRange = cell.MergedRange();
-                                        cellValue = mergedRange.FirstCell().GetString().Trim();
-                                    }
-                                    else
-                                    {
+                                        // 셀 값 가져오기 시도
                                         cellValue = cell.GetString().Trim();
+                                        
+                                        // 값이 비어있고, 병합된 셀일 가능성이 있는 경우
+                                        if (string.IsNullOrEmpty(cellValue))
+                                        {
+                                            // 위쪽 셀 확인 (병합된 셀의 경우 위쪽 셀에 값이 있을 수 있음)
+                                            if (row > 1)
+                                            {
+                                                var upperCell = worksheet.Cell(row - 1, col);
+                                                var upperValue = upperCell.GetString().Trim();
+                                                
+                                                // 위쪽 셀에 "상주업체" 등의 구분 값이 있으면 사용
+                                                if (!string.IsNullOrEmpty(upperValue) && 
+                                                    (upperValue.Contains("업체") || upperValue.Contains("상주") || upperValue.Contains("비상주")))
+                                                {
+                                                    cellValue = upperValue;
+                                                    isMerged = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        cellValue = "";
                                     }
                                     
-                                    System.Diagnostics.Debug.WriteLine($"행 {row}, 열 {col}: '{cellValue}' (병합={cell.IsMerged()})");
+                                    System.Diagnostics.Debug.WriteLine($"행 {row}, 열 {col}: '{cellValue}' (병합추정={isMerged})");
                                     
                                     // 유지업체/신규업체 체크 (무시할 섹션)
                                     if (cellValue.Contains("유지업체") || cellValue.Contains("유지 업체"))
@@ -449,15 +469,28 @@ namespace OfficeManagerWPF.Services
                                 var firstCell = worksheet.Cell(row, 1);
                                 string firstColumnValue = "";
                                 
-                                // 병합된 셀 처리
-                                if (firstCell.IsMerged())
-                                {
-                                    var mergedRange = firstCell.MergedRange();
-                                    firstColumnValue = mergedRange.FirstCell().GetString().Trim();
-                                }
-                                else
+                                // 병합된 셀 처리 - ClosedXML 방식
+                                try
                                 {
                                     firstColumnValue = firstCell.GetString().Trim();
+                                    
+                                    // 값이 비어있고 병합된 셀일 가능성이 있는 경우
+                                    if (string.IsNullOrEmpty(firstColumnValue) && row > 1)
+                                    {
+                                        // 위쪽 셀 확인
+                                        var upperCell = worksheet.Cell(row - 1, 1);
+                                        var upperValue = upperCell.GetString().Trim();
+                                        
+                                        if (!string.IsNullOrEmpty(upperValue) && 
+                                            (upperValue.Contains("업체") || upperValue.Contains("상주") || upperValue.Contains("비상주")))
+                                        {
+                                            firstColumnValue = upperValue;
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    firstColumnValue = "";
                                 }
                                 
                                 if (firstColumnValue.Contains("유지업체") || firstColumnValue.Contains("신규업체"))
