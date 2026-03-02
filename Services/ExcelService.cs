@@ -435,6 +435,8 @@ namespace OfficeManagerWPF.Services
                 data.CompanyType = worksheet.Cell(row, columnMapping["법인/개인"]).GetString().Trim();
             else if (columnMapping.ContainsKey("개인/법인"))
                 data.CompanyType = worksheet.Cell(row, columnMapping["개인/법인"]).GetString().Trim();
+            else if (columnMapping.ContainsKey("구분"))
+                data.CompanyType = worksheet.Cell(row, columnMapping["구분"]).GetString().Trim();
             
             if (columnMapping.ContainsKey("폐업서류접수여부 / 비    고"))
                 data.Notes = worksheet.Cell(row, columnMapping["폐업서류접수여부 / 비    고"]).GetString().Trim();
@@ -449,10 +451,21 @@ namespace OfficeManagerWPF.Services
             if (string.IsNullOrWhiteSpace(rowData.CompanyName))
                 return null;
             
+            // Type 결정: 상주/비상주 (Excel의 "구분" 컬럼에서 가져옴)
+            string companyType = "상주"; // 기본값
+            if (!string.IsNullOrWhiteSpace(rowData.CompanyType))
+            {
+                string typeStr = rowData.CompanyType.Trim();
+                if (typeStr.Contains("비상주") || typeStr.Equals("비입"))
+                    companyType = "비상주";
+                else if (typeStr.Contains("상주") || typeStr.Equals("법입"))
+                    companyType = "상주";
+            }
+            
             return new Company
             {
                 Name = string.IsNullOrWhiteSpace(locationPrefix) ? rowData.CompanyName : $"[{locationPrefix}] {rowData.CompanyName}",
-                Type = rowData.CompanyType.Contains("법인") ? "법인" : "개인",
+                Type = companyType,
                 ContractDate = rowData.ContractDate ?? DateTime.Now,
                 MonthlyFee = rowData.MonthlyFee,
                 ContactPerson = rowData.ContactPerson,

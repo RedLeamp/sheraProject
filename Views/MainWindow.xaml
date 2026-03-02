@@ -210,20 +210,61 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- 지역별 필터 탭 (지역이 있을 때만 표시) -->
-                            <Border Name="LocationFilterContainer" Visibility="Collapsed" Background="{StaticResource VSLightBg}" 
-                                    BorderBrush="{StaticResource VSBorder}" BorderThickness="1" 
-                                    Padding="15" Margin="0,0,0,20">
-                                <StackPanel>
-                                    <TextBlock Text="🗺️ 지역별 보기" 
-                                               Foreground="{StaticResource VSTextPrimary}" 
-                                               FontSize="13" 
-                                               FontWeight="SemiBold" 
-                                               Margin="0,0,0,10"/>
-                                    <TabControl Name="LocationFilterTabs" Background="Transparent" BorderThickness="0">
-                                        <!-- 지역 탭들이 동적으로 추가됨 -->
-                                    </TabControl>
-                                </StackPanel>
+                            <!-- 지역별 필터 탭 (크롬 스타일) -->
+                            <Border Name="LocationFilterContainer" Visibility="Visible" 
+                                    Background="{StaticResource VSDarkBg}" 
+                                    BorderBrush="{StaticResource VSBorder}" 
+                                    BorderThickness="0,0,0,1" 
+                                    Padding="0" 
+                                    Margin="0,0,0,20">
+                                <TabControl Name="LocationFilterTabs" 
+                                            Background="Transparent" 
+                                            BorderThickness="0"
+                                            TabStripPlacement="Top"
+                                            SelectionChanged="LocationFilterTabs_SelectionChanged">
+                                    <TabControl.Resources>
+                                        <!-- 크롬 스타일 탭 -->
+                                        <Style TargetType="TabItem">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{StaticResource VSTextSecondary}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Padding" Value="20,10"/>
+                                            <Setter Property="Margin" Value="0,0,0,0"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="FontWeight" Value="Normal"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TabItem">
+                                                        <Border Name="Border" 
+                                                                Background="{TemplateBinding Background}" 
+                                                                BorderThickness="0,0,0,2" 
+                                                                BorderBrush="Transparent"
+                                                                Margin="0,0,2,0"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter x:Name="ContentSite" 
+                                                                            VerticalAlignment="Center" 
+                                                                            HorizontalAlignment="Center"
+                                                                            ContentSource="Header"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource VSAccent}"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource VSTextPrimary}"/>
+                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="{StaticResource VSHover}"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TabControl.Resources>
+                                    
+                                    <!-- 탭은 코드에서 동적으로 추가됨 -->
+                                </TabControl>
                             </Border>
 
                             <!-- 통계 카드 그리드 -->
