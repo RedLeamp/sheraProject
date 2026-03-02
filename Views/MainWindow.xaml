@@ -652,8 +652,6 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                    </TabControl>
-                </TabItem>
 
                 <!-- 남양 탭 -->
                 <TabItem Header="남양" Tag="남양">
