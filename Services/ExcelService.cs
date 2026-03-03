@@ -420,19 +420,19 @@ namespace OfficeManagerWPF.Services
                                     var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
                                     bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
                                     
+                                    currentSection = "상주업체";
+                                    
                                     if (isHeaderRow)
                                     {
                                         // 섹션 제목 행 - 건너뛰기
-                                        currentSection = "상주업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작 (제목 행)");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 시작 (제목 행) - 건너뛰기");
                                         continue;
                                     }
                                     else
                                     {
-                                        // 실제 데이터 행 - 섹션은 설정하되 continue 하지 않음
-                                        currentSection = "상주업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 섹션 계속 (데이터 행, 번호={numberCell})");
-                                        // continue 하지 않고 아래로 진행하여 데이터 처리
+                                        // 실제 데이터 행 - 아래로 진행하여 데이터 처리
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 상주업체 데이터 행 (번호={numberCell}) - 처리 진행");
+                                        // continue 하지 않고 아래로 진행
                                     }
                                 }
                                 // "비상주업체" 구분 감지
@@ -442,16 +442,17 @@ namespace OfficeManagerWPF.Services
                                     var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
                                     bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
                                     
+                                    currentSection = "비상주업체";
+                                    
                                     if (isHeaderRow)
                                     {
-                                        currentSection = "비상주업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작 (제목 행)");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 시작 (제목 행) - 건너뛰기");
                                         continue;
                                     }
                                     else
                                     {
-                                        currentSection = "비상주업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 비상주업체 데이터 행 (번호={numberCell}) - 처리 진행");
+                                        // continue 하지 않고 아래로 진행
                                     }
                                 }
                                 // "폐업업체" 구분 감지
@@ -461,16 +462,17 @@ namespace OfficeManagerWPF.Services
                                     var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
                                     bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
                                     
+                                    currentSection = "폐업업체";
+                                    
                                     if (isHeaderRow)
                                     {
-                                        currentSection = "폐업업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 시작 (제목 행)");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 시작 (제목 행) - 건너뛰기");
                                         continue;
                                     }
                                     else
                                     {
-                                        currentSection = "폐업업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 폐업업체 데이터 행 (번호={numberCell}) - 처리 진행");
+                                        // continue 하지 않고 아래로 진행
                                     }
                                 }
                                 // "예치금반환업체" 구분 감지
@@ -480,16 +482,17 @@ namespace OfficeManagerWPF.Services
                                     var numberCell = worksheet.Cell(row, 2).Value.ToString().Trim();
                                     bool isHeaderRow = string.IsNullOrEmpty(numberCell) || numberCell == "번호";
                                     
+                                    currentSection = "예치금반환업체";
+                                    
                                     if (isHeaderRow)
                                     {
-                                        currentSection = "예치금반환업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 시작 (제목 행)");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 시작 (제목 행) - 건너뛰기");
                                         continue;
                                     }
                                     else
                                     {
-                                        currentSection = "예치금반환업체";
-                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 섹션 계속 (데이터 행, 번호={numberCell})");
+                                        System.Diagnostics.Debug.WriteLine($"행 {row}: 예치금반환업체 데이터 행 (번호={numberCell}) - 처리 진행");
+                                        // continue 하지 않고 아래로 진행
                                     }
                                 }
                                 
